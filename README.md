@@ -1,84 +1,126 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
-
-## About Laravel
-
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
-```
-
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 # Nam Laravel Project
 
+Laravel clinic management API running with Docker and PostgreSQL 16.
+
+## Requirements
+
+* Ubuntu 24
+* Docker Engine
+* Docker Compose plugin
+* PostgreSQL 16
+* Laravel / PHP application
+
+## Docker Services
+
+| Service | Description               |
+| ------- | ------------------------- |
+| `app`   | Laravel / PHP application |
+| `db`    | PostgreSQL 16 database    |
+
+The PostgreSQL database is persisted using a Docker volume.
+
 ## Environment Versions
-- **Docker Version:** 29.7.1
-- **Docker Compose Version:** v5.3.1
 
-## How to run
-1. Clone project
-2. Run `sudo docker compose up -d --build`
-3. Access `http://localhost:8000`
+* **Docker Version:** 29.7.1
+* **Docker Compose Version:** v5.3.1
 
-## Environment Variables (.env.example)
+## How to Run
 
-| Variable | Description |
-| :--- | :--- |
-| `DB_CONNECTION` | Loại kết nối cơ sở dữ liệu (`pgsql` cho PostgreSQL). |
-| `DB_HOST` | Địa chỉ máy chủ database (`db` tương ứng với service trong Docker Compose). |
-| `DB_PORT` | Cổng kết nối database (mặc định là `5432`). |
-| `DB_DATABASE` | Tên cơ sở dữ liệu (`laravel_db`). |
-| `DB_USERNAME` | Tên tài khoản truy cập cơ sở dữ liệu. |
-| `DB_PASSWORD` | Mật khẩu truy cập cơ sở dữ liệu. |
-| `EXAMINATION_FEE` | Phí tham gia kỳ thi / lệ phí (biến tùy chỉnh phục vụ nghiệp vụ). |
-| `PAYPAL_MODE` | Chế độ hoạt động PayPal (`sandbox` cho thử nghiệm). |
-| `PAYPAL_CLIENT_ID` | Mã định danh khách hàng PayPal (sử dụng placeholder). |
-| `PAYPAL_SECRET` | Khóa bí mật PayPal (sử dụng placeholder). |
-| `PAYPAL_CURRENCY` | Đơn vị tiền tệ thanh toán (ví dụ: `USD`). |
+Clone the repository:
+
+```bash
+git clone <repo>
+cd <repo>
+```
+
+Create the environment file:
+
+```bash
+cp .env.example .env
+```
+
+Build and start the Docker containers:
+
+```bash
+docker compose up -d --build
+```
+
+Generate the Laravel application key:
+
+```bash
+docker compose exec app php artisan key:generate
+```
+
+Run database migrations and seeders:
+
+```bash
+docker compose exec app php artisan migrate --seed
+```
+
+Run the test suite:
+
+```bash
+docker compose exec app php artisan test
+```
+
+The API is available at:
+
+```text
+http://localhost:8000/api/...
+```
+
+## Environment Variables
+
+| Variable               | Description                       | Example                      |
+| ---------------------- | --------------------------------- | ---------------------------- |
+| `DB_CONNECTION`        | Database connection               | `pgsql`                      |
+| `DB_HOST`              | PostgreSQL service name in Docker | `db`                         |
+| `DB_PORT`              | PostgreSQL port                   | `5432`                       |
+| `DB_DATABASE`          | Database name                     | `clinic_app`                 |
+| `DB_USERNAME`          | Database username                 | `clinic`                     |
+| `DB_PASSWORD`          | Database password                 | `secret`                     |
+| `EXAMINATION_FEE`      | Examination fee                   | `100000`                     |
+| `PAYPAL_MODE`          | PayPal environment                | `sandbox`                    |
+| `PAYPAL_CLIENT_ID`     | PayPal sandbox client ID          | `your-sandbox-client-id`     |
+| `PAYPAL_CLIENT_SECRET` | PayPal sandbox client secret      | `your-sandbox-client-secret` |
+| `PAYPAL_CURRENCY`      | Payment currency                  | `USD`                        |
+
+## Database Configuration
+
+The project uses PostgreSQL 16.
+
+The Docker Compose configuration uses:
+
+```text
+Database: clinic_app
+Username: clinic
+Password: secret
+Host: db
+Port: 5432
+```
+
+The database data is persisted using the Docker volume `pgdata`.
+
+## API
+
+API endpoints are available under:
+
+```text
+http://localhost:8000/api/...
+```
+
+A Postman collection is included in the repository for API testing.
+
+## Testing
+
+Run all Laravel tests with:
+
+```bash
+docker compose exec app php artisan test
+```
+
+## Important
+
+The `.env` file contains local environment configuration and must **not** be committed to Git.
+
+Only `.env.example` should be committed to the repository.

@@ -14,9 +14,9 @@ services:
       - DB_CONNECTION=pgsql
       - DB_HOST=db
       - DB_PORT=5432
-      - DB_DATABASE=laravel_db
-      - DB_USERNAME=laravel_user
-      - DB_PASSWORD=secret_password
+      - DB_DATABASE=clinic_app
+      - DB_USERNAME=clinic
+      - DB_PASSWORD=secret
     depends_on:
       db:
         condition: service_healthy
@@ -28,15 +28,15 @@ services:
     container_name: nam_postgres_container
     restart: unless-stopped
     environment:
-      POSTGRES_DB: laravel_db
-      POSTGRES_USER: laravel_user
-      POSTGRES_PASSWORD: secret_password
+      POSTGRES_DB: clinic_app
+      POSTGRES_USER: clinic
+      POSTGRES_PASSWORD: secret
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U laravel_user -d laravel_db"]
+      test: ["CMD-SHELL", "pg_isready -U clinic -d clinic_app"]
       interval: 5s
       timeout: 5s
       retries: 5
