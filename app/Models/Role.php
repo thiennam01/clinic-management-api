@@ -19,7 +19,7 @@ class Role extends Model
     }
 
     /**
-     * Quan hệ N-N với bảng permissions thông qua bảng trung gian role_has_permissions
+     * Quan hệ N-N với bảng permissions thông qua bảng trung gian role_permissions
      */
     public function permissions(): BelongsToMany
     {
