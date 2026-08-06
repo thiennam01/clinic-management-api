@@ -14,13 +14,14 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        // Chạy theo thứ tự: RoleSeeder tạo roles -> PermissionSeeder tạo & map permissions
+        // 1. Chạy các Seeder nền tảng & danh mục
         $this->call([
             RoleSeeder::class,
             PermissionSeeder::class,
+            SpecialtySeeder::class,
         ]);
 
-        // Tạo Admin User mặc định
+        // 2. Tạo Admin User mặc định
         $adminRole = Role::where('name', 'ADMIN')->first();
 
         User::updateOrCreate(
@@ -31,5 +32,11 @@ class DatabaseSeeder extends Seeder
                 'role_id'  => $adminRole?->id,
             ]
         );
+
+        // 3. Chạy các Seeder nghiệp vụ (phụ thuộc vào Role, Specialty)
+        $this->call([
+            DoctorSeeder::class,
+            PatientSeeder::class,
+        ]);
     }
 }
