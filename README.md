@@ -1,12 +1,12 @@
-# Clinic Management REST API (Hệ thống Quản lý Phòng khám)
+# Clinic Management REST API
 
-Hệ thống REST API quản lý phòng khám đơn (Single-clinic) được phát triển bằng **Laravel**, **PostgreSQL 16** và **Docker Compose**, tuân thủ mô hình **RBAC Global theo Controller@action** và kiến trúc phân tầng chuyên nghiệp.
+A single-clinic management REST API system developed using **Laravel**, **PostgreSQL 16**, and **Docker Compose**, adhering to the **Global RBAC model via Controller@action** and a professional layered architecture.
 
 ---
 
-## 1. Môi trường & Hướng dẫn cài đặt (Setup Guide)
+## 1. Environment & Setup Guide
 
-### Yêu cầu hệ thống (Requirements)
+### System Requirements
 
 * OS: Ubuntu 24
 * Docker Engine (tested: `v29.7.1`)
@@ -21,133 +21,129 @@ Hệ thống REST API quản lý phòng khám đơn (Single-clinic) được ph�
 | `app` | Laravel Application Service (PHP-FPM / Server) | `8000:8000` |
 | `db` | PostgreSQL 16 Database | `5432:5432` |
 
-*Dữ liệu PostgreSQL được lưu trữ bền vững (persist) qua Docker volume `pgdata`.*
+*PostgreSQL data is persistently stored via the `pgdata` Docker volume.*
 
-### Các bước khởi chạy dự án (How to Run)
+### How to Run
 
 ```bash
-# 1. Clone repository
+# 1. Clone the repository
 git clone https://github.com/thiennam01/intern_training_project.git
 cd nam-laravel
 
-# 2. Tạo file cấu hình môi trường
+# 2. Create the environment configuration file
 cp .env.example .env
 
-# 3. Build và khởi chạy các Docker containers
+# 3. Build and start Docker containers
 docker compose up -d --build
 
-# 4. Sinh App Key cho Laravel
+# 4. Generate the Laravel application key
 docker compose exec app php artisan key:generate
 
-# 5. Chạy Database Migrations & Seeders (Tạo Schema & dữ liệu RBAC)
+# 5. Run Database Migrations & Seeders (Create Schema & RBAC data)
 docker compose exec app php artisan migrate --seed
 
-# 6. Chạy Feature Tests
+# 6. Run Feature Tests
 docker compose exec app php artisan test
 
 ```
 
-Địa điểm truy cập API: `http://localhost:8000/api/...` 
+API Access Point: `http://localhost:8000/api/...`
 
 ---
 
-## 2. Cấu hình Biến môi trường (Environment Variables)
+## 2. Environment Variables
 
-Các biến môi trường chính trong file `.env`:
+Core environment variables in the `.env` file:
 
-| Biến môi trường | Mô tả | Giá trị mẫu |
+| Environment Variable | Description | Sample Value |
 | --- | --- | --- |
-| `DB_CONNECTION` | Kết nối cơ sở dữ liệu | `pgsql` |
-| `DB_HOST` | Tên service PostgreSQL trong Docker | `db` |
-| `DB_PORT` | Cổng kết nối PostgreSQL | `5432` |
-| `DB_DATABASE` | Tên cơ sở dữ liệu | `clinic_app` |
-| `DB_USERNAME` | Tài khoản truy cập DB | `clinic` |
-| `DB_PASSWORD` | Mật khẩu DB | `secret` |
-| `EXAMINATION_FEE` | Phí khám mặc định (VND) | `100000` |
-| `PAYPAL_MODE` | Môi trường PayPal | `sandbox` |
-| `PAYPAL_CLIENT_ID` | Client ID PayPal Sandbox | `your-sandbox-client-id` |
-| `PAYPAL_CLIENT_SECRET` | Client Secret PayPal Sandbox | `your-sandbox-client-secret` |
-| `PAYPAL_CURRENCY` | Đơn vị tiền tệ thanh toán | `USD` |
-
-
----
-
-## 3. Kiến trúc đã chọn (Selected Architecture)
-
-Hệ thống thống nhất áp dụng **Kiến trúc C: Controller - Service - Repository Pattern**.
-
-Toàn bộ nguồn mã trong dự án được triển khai nhất quán 100% theo mô hình này, tuân thủ nghiêm ngặt quy định **Cấm Fat Controller**.
+| `DB_CONNECTION` | Database connection driver | `pgsql` |
+| `DB_HOST` | PostgreSQL service name in Docker | `db` |
+| `DB_PORT` | PostgreSQL connection port | `5432` |
+| `DB_DATABASE` | Database name | `clinic_app` |
+| `DB_USERNAME` | Database username | `clinic` |
+| `DB_PASSWORD` | Database password | `secret` |
+| `EXAMINATION_FEE` | Default examination fee (VND) | `100000` |
+| `PAYPAL_MODE` | PayPal environment | `sandbox` |
+| `PAYPAL_CLIENT_ID` | PayPal Sandbox Client ID | `your-sandbox-client-id` |
+| `PAYPAL_CLIENT_SECRET` | PayPal Sandbox Client Secret | `your-sandbox-client-secret` |
+| `PAYPAL_CURRENCY` | Payment currency unit | `USD` |
 
 ---
 
-## 4. Lý do lựa chọn Kiến trúc C
+## 3. Selected Architecture
 
-1. **Tuân thủ nguyên lý Separation of Concerns (Tách biệt trách nhiệm):**
-* **Thin Controller:** Chỉ tiếp nhận HTTP Request, chuyển qua Form Request Validation, gọi Service và trả về kết quả dưới dạng API Resource.
-* **Service Layer:** Tập trung 100% Business Logic của ứng dụng (điều phối quy trình thanh toán PayPal Sandbox, tính toán hóa đơn, xử lý quy trình khám chữa bệnh).
-* **Repository Layer:** Đóng gói toàn bộ các truy vấn cơ sở dữ liệu PostgreSQL (Eager loading chống lỗi N+1, khóa bản ghi `lockForUpdate`, câu lệnh aggregate).
+The system uniformly implements **Architecture C: Controller - Service - Repository Pattern**.
 
-
-2. **Quản lý DB Transaction đa bước an toàn:**
-* Các nghiệp vụ phức tạp như *Kê đơn thuốc tự động trừ kho (`medicines.stock`)* hoặc *Tạo hóa đơn & Capture PayPal Sandbox* đòi hỏi tính toàn vẹn dữ liệu cao. Dùng Repository giúp tách biệt logic query/locking ra khỏi Service, giúp khối lệnh `DB::transaction()` ở tầng Service trong sáng và dễ kiểm soát.
-
-
-3. **Tối ưu cho Feature Testing & Unit Testing:**
-* Việc giao tiếp qua các **Repository Interface** cho phép Mock dữ liệu dễ dàng khi viết Unit Test cho Service mà không cần phụ thuộc vào kết nối Database thực tế.
-
-
-4. **Tương thích cao với cơ chế RBAC Custom:**
-* Phân tách Controller thành "Thin Controller" giúp Middleware `CheckPermission` kiểm tra quyền theo dạng `CONTROLLER.ACTION` (ví dụ `PATIENTS.FINDALL`) hoạt động độc lập ngay tại tầng HTTP.
-
-
+All source code in the project is implemented 100% consistently with this pattern, strictly abiding by the **No Fat Controller** rule.
 
 ---
 
-## 5. Sơ đồ luồng Request (Request Flow Diagram)
+## 4. Rationale for Architecture C
 
-Khi Client gửi request tới API, luồng xử lý sẽ đi qua các tầng theo thứ tự:
+1. **Adherence to Separation of Concerns:**
+
+* **Thin Controller:** Only handles HTTP Requests, passes them through Form Request validation, invokes the Service, and returns responses formatted as API Resources.
+* **Service Layer:** Focuses 100% on application business logic (orchestrating PayPal Sandbox payment flows, invoice calculations, and medical examination processes).
+* **Repository Layer:** Encapsulates all PostgreSQL database queries (Eager loading to prevent N+1 issues, record locking via `lockForUpdate`, and aggregate queries).
+
+2. **Safe Multi-Step DB Transactions:**
+
+* Complex operations such as *automatic prescription processing with inventory reduction (`medicines.stock`)* or *invoice creation & PayPal Sandbox capture* require high data integrity. Using a repository separates query/locking logic from the service, keeping the `DB::transaction()` blocks clean and manageable.
+
+3. **Optimization for Feature & Unit Testing:**
+
+* Communicating through **Repository Interfaces** allows for straightforward data mocking when writing unit tests for services without relying on actual database connections.
+
+4. **High Compatibility with Custom RBAC Mechanism:**
+
+* Breaking down controllers into "Thin Controllers" enables the `CheckPermission` middleware to evaluate permissions in the format `CONTROLLER.ACTION` (e.g., `PATIENTS.FINDALL`) independently right at the HTTP layer.
+
+---
+
+## 5. Request Flow Diagram
+
+When a client sends a request to the API, the processing flow traverses the layers in this order:
 
 ```text
  Client (Postman / Frontend)
            │
-           │  1. HTTP Request (API Token Sanctum)
+           │  1. HTTP Request (Sanctum API Token)
            ▼
 ┌─────────────────────────────────────────────────────────┐
 │ CheckPermission Middleware                              │
-│ - Tự động map và check quyền CONTROLLER.ACTION          │
-│ - Nếu không có quyền -> Trả về HTTP 403 Forbidden       │
+│ - Automatically maps and checks permission CONTROLLER.ACTION│
+│ - If unauthorized -> Returns HTTP 403 Forbidden         │
 └──────────────────────────┬──────────────────────────────┘
                            │
-                           │  2. Chuyển Request hợp lệ
+                           │  2. Passes valid request
                            ▼
 ┌─────────────────────────────────────────────────────────┐
-│ Thin Controller (e.g. AuthController, PatientController) │
-│ - Validate dữ liệu đầu vào qua Form Request             │
-│ - Điều hướng request tới Service tương ứng              │
+│ Thin Controller (e.g., AuthController, PatientController)│
+│ - Validates input data via Form Request                 │
+│ - Routes the request to the corresponding Service       │
 └──────────────────────────┬──────────────────────────────┘
                            │
-                           │  3. Gọi phương thức Business Logic
+                           │  3. Invokes Business Logic method
                            ▼
 ┌─────────────────────────────────────────────────────────┐
-│ Service Layer (e.g. AuthService, ExaminationService)    │
-│ - Quản lý Business Logic & DB Transactions              │
-│ - Ra lệnh cho Repository tương tác với Data             │
+│ Service Layer (e.g., AuthService, ExaminationService)   │
+│ - Manages Business Logic & DB Transactions              │
+│ - Instructs Repository to interact with Data            │
 └──────────────────────────┬──────────────────────────────┘
                            │
-                           │  4. Gọi phương thức Repository
+                           │  4. Invokes Repository method
                            ▼
 ┌─────────────────────────────────────────────────────────┐
 │ Repository Layer                                        │
-│ - Thực thi câu lệnh Query (Eloquent ORM / SQL)          │
+│ - Executes Query statements (Eloquent ORM / SQL)        │
 │ - Eager Loading, Pessimistic Locking (lockForUpdate)    │
 └──────────────────────────┬──────────────────────────────┘
                            │
-                           │  5. Truy vấn / Cập nhật
+                           │  5. Query / Update
                            ▼
 ┌─────────────────────────────────────────────────────────┐
 │ PostgreSQL 16 Database (`db` container)                 │
 └─────────────────────────────────────────────────────────┘
 
 ```
-
-
