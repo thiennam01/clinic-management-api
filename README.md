@@ -1,84 +1,149 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Clinic Management REST API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A single-clinic management REST API system developed using **Laravel**, **PostgreSQL 16**, and **Docker Compose**, adhering to the **Global RBAC model via Controller@action** and a professional layered architecture.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 1. Environment & Setup Guide
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### System Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+* OS: Ubuntu 24
+* Docker Engine (tested: `v29.7.1`)
+* Docker Compose Plugin (tested: `v5.3.1`)
+* PostgreSQL 16
+* PHP 8.2+ / Laravel 11.x
 
-## Learning Laravel
+### Docker Services
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+| Service | Description | Port |
+| --- | --- | --- |
+| `app` | Laravel Application Service (PHP-FPM / Server) | `8000:8000` |
+| `db` | PostgreSQL 16 Database | `5432:5432` |
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+*PostgreSQL data is persistently stored via the `pgdata` Docker volume.*
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### How to Run
 
 ```bash
-composer require laravel/boost --dev
+# 1. Clone the repository
+git clone https://github.com/thiennam01/intern_training_project.git
+cd nam-laravel
 
-php artisan boost:install
+# 2. Create the environment configuration file
+cp .env.example .env
+
+# 3. Build and start Docker containers
+docker compose up -d --build
+
+# 4. Generate the Laravel application key
+docker compose exec app php artisan key:generate
+
+# 5. Run Database Migrations & Seeders (Create Schema & RBAC data)
+docker compose exec app php artisan migrate --seed
+
+# 6. Run Feature Tests
+docker compose exec app php artisan test
+
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+API Access Point: `http://localhost:8000/api/...`
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 2. Environment Variables
 
-## Code of Conduct
+Core environment variables in the `.env` file:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Environment Variable | Description | Sample Value |
+| --- | --- | --- |
+| `DB_CONNECTION` | Database connection driver | `pgsql` |
+| `DB_HOST` | PostgreSQL service name in Docker | `db` |
+| `DB_PORT` | PostgreSQL connection port | `5432` |
+| `DB_DATABASE` | Database name | `clinic_app` |
+| `DB_USERNAME` | Database username | `clinic` |
+| `DB_PASSWORD` | Database password | `secret` |
+| `EXAMINATION_FEE` | Default examination fee (VND) | `100000` |
+| `PAYPAL_MODE` | PayPal environment | `sandbox` |
+| `PAYPAL_CLIENT_ID` | PayPal Sandbox Client ID | `your-sandbox-client-id` |
+| `PAYPAL_CLIENT_SECRET` | PayPal Sandbox Client Secret | `your-sandbox-client-secret` |
+| `PAYPAL_CURRENCY` | Payment currency unit | `USD` |
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 3. Selected Architecture
 
-## License
+The system uniformly implements **Architecture C: Controller - Service - Repository Pattern**.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# Nam Laravel Project
+All source code in the project is implemented 100% consistently with this pattern, strictly abiding by the **No Fat Controller** rule.
 
-## Environment Versions
-- **Docker Version:** 29.7.1
-- **Docker Compose Version:** v5.3.1
+---
 
-## How to run
-1. Clone project
-2. Run `sudo docker compose up -d --build`
-3. Access `http://localhost:8000`
+## 4. Rationale for Architecture C
 
-## Environment Variables (.env.example)
+1. **Adherence to Separation of Concerns:**
 
-| Variable | Description |
-| :--- | :--- |
-| `DB_CONNECTION` | Loại kết nối cơ sở dữ liệu (`pgsql` cho PostgreSQL). |
-| `DB_HOST` | Địa chỉ máy chủ database (`db` tương ứng với service trong Docker Compose). |
-| `DB_PORT` | Cổng kết nối database (mặc định là `5432`). |
-| `DB_DATABASE` | Tên cơ sở dữ liệu (`laravel_db`). |
-| `DB_USERNAME` | Tên tài khoản truy cập cơ sở dữ liệu. |
-| `DB_PASSWORD` | Mật khẩu truy cập cơ sở dữ liệu. |
-| `EXAMINATION_FEE` | Phí tham gia kỳ thi / lệ phí (biến tùy chỉnh phục vụ nghiệp vụ). |
-| `PAYPAL_MODE` | Chế độ hoạt động PayPal (`sandbox` cho thử nghiệm). |
-| `PAYPAL_CLIENT_ID` | Mã định danh khách hàng PayPal (sử dụng placeholder). |
-| `PAYPAL_SECRET` | Khóa bí mật PayPal (sử dụng placeholder). |
-| `PAYPAL_CURRENCY` | Đơn vị tiền tệ thanh toán (ví dụ: `USD`). |
+* **Thin Controller:** Only handles HTTP Requests, passes them through Form Request validation, invokes the Service, and returns responses formatted as API Resources.
+* **Service Layer:** Focuses 100% on application business logic (orchestrating PayPal Sandbox payment flows, invoice calculations, and medical examination processes).
+* **Repository Layer:** Encapsulates all PostgreSQL database queries (Eager loading to prevent N+1 issues, record locking via `lockForUpdate`, and aggregate queries).
+
+2. **Safe Multi-Step DB Transactions:**
+
+* Complex operations such as *automatic prescription processing with inventory reduction (`medicines.stock`)* or *invoice creation & PayPal Sandbox capture* require high data integrity. Using a repository separates query/locking logic from the service, keeping the `DB::transaction()` blocks clean and manageable.
+
+3. **Optimization for Feature & Unit Testing:**
+
+* Communicating through **Repository Interfaces** allows for straightforward data mocking when writing unit tests for services without relying on actual database connections.
+
+4. **High Compatibility with Custom RBAC Mechanism:**
+
+* Breaking down controllers into "Thin Controllers" enables the `CheckPermission` middleware to evaluate permissions in the format `CONTROLLER.ACTION` (e.g., `PATIENTS.FINDALL`) independently right at the HTTP layer.
+
+---
+
+## 5. Request Flow Diagram
+
+When a client sends a request to the API, the processing flow traverses the layers in this order:
+
+```text
+ Client (Postman / Frontend)
+           │
+           │  1. HTTP Request (Sanctum API Token)
+           ▼
+┌─────────────────────────────────────────────────────────┐
+│ CheckPermission Middleware                              │
+│ - Automatically maps and checks permission CONTROLLER.ACTION│
+│ - If unauthorized -> Returns HTTP 403 Forbidden         │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                           │  2. Passes valid request
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│ Thin Controller (e.g., AuthController, PatientController)│
+│ - Validates input data via Form Request                 │
+│ - Routes the request to the corresponding Service       │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                           │  3. Invokes Business Logic method
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│ Service Layer (e.g., AuthService, ExaminationService)   │
+│ - Manages Business Logic & DB Transactions              │
+│ - Instructs Repository to interact with Data            │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                           │  4. Invokes Repository method
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│ Repository Layer                                        │
+│ - Executes Query statements (Eloquent ORM / SQL)        │
+│ - Eager Loading, Pessimistic Locking (lockForUpdate)    │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                           │  5. Query / Update
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│ PostgreSQL 16 Database (`db` container)                 │
+└─────────────────────────────────────────────────────────┘
+
+```
