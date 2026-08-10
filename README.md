@@ -105,7 +105,7 @@ All source code in the project is implemented 100% consistently with this patter
 
 When a client sends a request to the API, the processing flow traverses the layers in this order:
 
-```text
+
  Client (Postman / Frontend)
            │
            │  1. HTTP Request (Sanctum API Token)
@@ -146,4 +146,28 @@ When a client sends a request to the API, the processing flow traverses the laye
 │ PostgreSQL 16 Database (`db` container)                 │
 └─────────────────────────────────────────────────────────┘
 
-```
+## 📌Project Rules & Development Guidelines
+
+### 1. Naming Conventions & Variables (Quy chuẩn đặt tên)
+* **Database Columns & Payload Requests:** Always use **`appointment_date`** for appointment timestamps. Avoid using `scheduled_at` to prevent schema mismatch across modules.
+* **Repositories & Services:** Follow the Repository Pattern (`AppointmentRepositoryInterface` -> `AppointmentRepository`) and keep business logic inside Service classes.
+
+---
+
+### 2. Appointment Conflict Logic (Task T2.6 - Chống trùng lịch)
+* **Rule:** A doctor cannot have overlapping appointments within a **30-minute time slot**.
+* **Implementation:** 
+  * The system calculates a 30-minute window starting from `appointment_date`.
+  * It checks active appointments (`status != 'cancelled'`) for the same doctor.
+  * If an overlap is detected (`StartNew < EndExisting && EndNew > StartExisting`), the system throws a `422 Unprocessable Entity` error.
+  * Cancelled appointments (`status = 'cancelled'`) are automatically ignored, allowing users to rebook the same time slot if a previous appointment was canceled.
+
+---
+
+### 3. Appointment State Machine (Task T2.5 - Quản lý trạng thái)
+Valid status transitions for an appointment:
+* `pending` ➔ `scheduled`, `confirmed`, `cancelled`
+* `scheduled` ➔ `confirmed`, `cancelled`
+* `confirmed` ➔ `completed`, `cancelled`
+* `completed` ➔ *(No further transitions)*
+* `cancelled` ➔ *(No further transitions)*

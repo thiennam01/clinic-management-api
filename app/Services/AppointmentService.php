@@ -20,25 +20,34 @@ class AppointmentService
 
     public function createAppointment(array $data)
     {
-        // 1. Kiểm tra lịch làm việc có tồn tại không
+        // 1. Check if the work schedule exists
         $schedule = $this->scheduleRepository->find($data['schedule_id']);
         if (!$schedule) {
             throw new Exception('Lịch làm việc không tồn tại.', 404);
         }
 
-        // 2. Kiểm tra xem lịch đã đủ số lượng bệnh nhân (max_patients) chưa
+        // 2. Check if the schedule has reached its maximum patient capacity
         $currentBookings = $this->appointmentRepository->countBySchedule($data['schedule_id']);
         if ($currentBookings >= $schedule->max_patients) {
             throw new Exception('Khung giờ này đã hết chỗ.', 422);
         }
 
-        // 3. Gán patient_id từ user đang đăng nhập (hoặc truyền vào)
+        // 3. Check for doctor schedule conflicts (Task T2.6)
+        $doctorId = $schedule->doctor_id;
+        $appointmentDate = $data['appointment_date'] ?? $schedule->appointment_date;
+
+        $isConflict = $this->appointmentRepository->hasConflict($doctorId, $appointmentDate, $data['schedule_id']);
+        if ($isConflict) {
+            throw new Exception('Bác sĩ đã có lịch hẹn khác trùng vào khung giờ này.', 422);
+        }
+
+        // 4. Create the appointment record
         return $this->appointmentRepository->create($data);
     }
 
     public function updateStatus($id, string $newStatus)
     {
-        // 1. Tìm lịch hẹn thông qua Repository
+        // 1. Find the appointment via Repository
         $appointment = $this->appointmentRepository->find($id);
         if (!$appointment) {
             throw new Exception('Lịch khám không tồn tại.', 404);
@@ -46,7 +55,7 @@ class AppointmentService
 
         $currentStatus = $appointment->status ?? 'pending';
 
-        // 2. Định nghĩa quy tắc máy trạng thái (State Machine) theo Task #19
+        // 2. Define State Machine transition rules (Task T2.5)
         $allowedTransitions = [
             'pending'   => ['scheduled', 'confirmed', 'cancelled'],
             'scheduled' => ['confirmed', 'cancelled'],
@@ -55,12 +64,12 @@ class AppointmentService
             'cancelled' => [],
         ];
 
-        // 3. Kiểm tra tính hợp lệ của bước chuyển trạng thái
+        // 3. Validate status transition validity
         if (!isset($allowedTransitions[$currentStatus]) || !in_array($newStatus, $allowedTransitions[$currentStatus])) {
             throw new Exception("Không thể chuyển trạng thái từ '{$currentStatus}' sang '{$newStatus}'.", 422);
         }
 
-        // 4. Cập nhật trạng thái thông qua Repository (hoặc save trực tiếp nếu repository hỗ trợ update)
+        // 4. Update status via Repository
         return $this->appointmentRepository->update($id, ['status' => $newStatus]);
     }
-}   
+}
