@@ -35,4 +35,32 @@ class AppointmentService
         // 3. Gán patient_id từ user đang đăng nhập (hoặc truyền vào)
         return $this->appointmentRepository->create($data);
     }
-}
+
+    public function updateStatus($id, string $newStatus)
+    {
+        // 1. Tìm lịch hẹn thông qua Repository
+        $appointment = $this->appointmentRepository->find($id);
+        if (!$appointment) {
+            throw new Exception('Lịch khám không tồn tại.', 404);
+        }
+
+        $currentStatus = $appointment->status ?? 'pending';
+
+        // 2. Định nghĩa quy tắc máy trạng thái (State Machine) theo Task #19
+        $allowedTransitions = [
+            'pending'   => ['scheduled', 'confirmed', 'cancelled'],
+            'scheduled' => ['confirmed', 'cancelled'],
+            'confirmed' => ['completed', 'cancelled'],
+            'completed' => [],
+            'cancelled' => [],
+        ];
+
+        // 3. Kiểm tra tính hợp lệ của bước chuyển trạng thái
+        if (!isset($allowedTransitions[$currentStatus]) || !in_array($newStatus, $allowedTransitions[$currentStatus])) {
+            throw new Exception("Không thể chuyển trạng thái từ '{$currentStatus}' sang '{$newStatus}'.", 422);
+        }
+
+        // 4. Cập nhật trạng thái thông qua Repository (hoặc save trực tiếp nếu repository hỗ trợ update)
+        return $this->appointmentRepository->update($id, ['status' => $newStatus]);
+    }
+}   

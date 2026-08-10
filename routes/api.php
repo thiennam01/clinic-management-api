@@ -15,6 +15,7 @@ Route::post('login', [AuthController::class, 'login']);
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/schedules', [ScheduleController::class, 'index']);
     Route::post('/schedules', [ScheduleController::class, 'store']);
+    Route::patch('/appointments/{id}/status', [AppointmentController::class, 'updateStatus']);
 });
 
 // 2. Nhóm PROTECTED check permission

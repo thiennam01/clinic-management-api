@@ -33,4 +33,19 @@ class AppointmentRepository implements AppointmentRepositoryInterface
             ->where('status', '!=', 'cancelled')
             ->count();
     }
+
+    public function find($id)
+    {
+        return Appointment::find($id);
+    }
+
+    public function update($id, array $data)
+    {
+        $appointment = Appointment::find($id);
+        if ($appointment) {
+            $appointment->update($data);
+            return $appointment;
+        }
+        return null;
+    }
 }

@@ -8,9 +8,21 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class PatientRepository implements PatientRepositoryInterface
 {
-    public function paginate(int $perPage = 10): LengthAwarePaginator
+    public function paginate(array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
-        return Patient::latest('id')->paginate($perPage);
+        $query = Patient::query();
+
+        // Xử lý tìm kiếm theo q (tên, SĐT, code)
+        if (!empty($filters['q'])) {
+            $keyword = $filters['q'];
+            $query->where(function ($q) use ($keyword) {
+                $q->where('full_name', 'like', "%{$keyword}%")
+                  ->orWhere('phone', 'like', "%{$keyword}%")
+                  ->orWhere('code', 'like', "%{$keyword}%");
+            });
+        }
+
+        return $query->latest('id')->paginate($perPage);
     }
 
     public function findById(int $id): ?Patient

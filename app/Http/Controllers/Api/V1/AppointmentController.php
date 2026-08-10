@@ -54,4 +54,27 @@ class AppointmentController extends Controller
             ], $e->getCode() >= 400 && $e->getCode() <= 500 ? $e->getCode() : 400);
         }
     }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:scheduled,confirmed,completed,cancelled'
+        ]);
+
+        try {
+            $appointment = $this->appointmentService->updateStatus($id, $request->status);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cập nhật trạng thái lịch khám thành công!',
+                'data' => new AppointmentResource($appointment)
+            ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], $e->getCode() >= 400 && $e->getCode() <= 500 ? $e->getCode() : 400);
+        }
+    }
 }
