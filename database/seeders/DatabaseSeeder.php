@@ -6,14 +6,12 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         // 1. Run RoleSeeder and PermissionSeeder
@@ -25,10 +23,13 @@ class DatabaseSeeder extends Seeder
         // 2. Get the ADMIN role to initialize the test Admin user
         $adminRole = Role::where('name', 'ADMIN')->first();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'role_id' => $adminRole->id,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@clinic.test'],
+            [
+                'name'     => 'System Admin',
+                'password' => Hash::make('password123'),
+                'role_id'  => $adminRole?->id,
+            ]
+        );
     }
 }

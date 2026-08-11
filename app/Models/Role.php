@@ -19,6 +19,7 @@ class Role extends Model
     }
 
     /**
+
      * Many-to-many relationship with the permissions table through the intermediate table role_has_permissions
      */
     public function permissions(): BelongsToMany
