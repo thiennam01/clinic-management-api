@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
     /**
-     * Đăng nhập và tạo Bearer Token cho User
+     * Log in and generate a Bearer Token for the User
      */
     public function login(Request $request)
     {
@@ -20,14 +20,14 @@ class AuthController extends Controller
 
         $user = User::where('email', $credentials['email'])->first();
 
-        // Kiểm tra xem User có tồn tại và mật khẩu có đúng không
+        // Check if the User exists and the password is correct
         if (! $user || ! Hash::check($credentials['password'], $user->password)) {
             return response()->json([
                 'message' => 'Email hoặc mật khẩu không chính xác.'
             ], 401);
         }
 
-        // Tạo token qua Sanctum
+        // Create token via Sanctum
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -44,7 +44,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Đăng xuất và thu hồi Token hiện tại
+     * Log out and revoke the current Token
      */
     public function logout(Request $request)
     {
