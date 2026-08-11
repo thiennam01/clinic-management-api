@@ -10,6 +10,6 @@ interface AppointmentRepositoryInterface
     public function find($id);
     public function update($id, array $data);
     
-
+    
     public function hasConflict(int $doctorId, string $scheduledAt, int $scheduleId): bool;
 }

@@ -6,29 +6,33 @@ use App\Http\Controllers\Api\V1\SpecialtyController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\Api\ScheduleController;
 use App\Http\Controllers\Api\V1\AppointmentController;
+use App\Http\Controllers\Api\ExaminationController; // Added ExaminationController
 use App\Http\Controllers\PatientController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('login', [AuthController::class, 'login']);
 
-// 1. Nhóm chỉ cần đăng nhập (Auth Sanctum) là gọi được Schedules
+// 1. Routes requiring basic authentication (Sanctum)
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/schedules', [ScheduleController::class, 'index']);
     Route::post('/schedules', [ScheduleController::class, 'store']);
     Route::patch('/appointments/{id}/status', [AppointmentController::class, 'updateStatus']);
 });
 
-// 2. Nhóm PROTECTED check permission
+// 2. Protected routes requiring authentication and permission checks
 Route::middleware(['auth:sanctum', 'permission'])->group(function () {
 
     Route::apiResource('patients', PatientController::class);
     
-    // API Specialty đã được trỏ đúng đến Api\V1\SpecialtyController
+    // Specialty API mapped to Api\V1\SpecialtyController
     Route::apiResource('specialties', SpecialtyController::class); 
 
-    // API Users trỏ đúng đến UserController trong Api\V1
+    // Users API mapped to Api\V1\UserController
     Route::apiResource('users', UserController::class);
     
     Route::apiResource('doctors', DoctorController::class);
     Route::apiResource('appointments', AppointmentController::class)->only(['index', 'store']);
+
+    // Examination API (Task T2.7)
+    Route::post('/examinations', [ExaminationController::class, 'store']);
 });
