@@ -8,8 +8,13 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    
+    private const MSG_INVALID_CREDENTIALS = 'Email hoặc mật khẩu không chính xác.';
+    private const MSG_LOGIN_SUCCESS = 'Đăng nhập thành công';
+    private const MSG_LOGOUT_SUCCESS = 'Đăng xuất thành công';
+
     /**
-     * Đăng nhập và tạo Bearer Token cho User
+     * Log in and generate a Bearer Token for the User
      */
     public function login(Request $request)
     {
@@ -20,18 +25,18 @@ class AuthController extends Controller
 
         $user = User::where('email', $credentials['email'])->first();
 
-        // Kiểm tra xem User có tồn tại và mật khẩu có đúng không
+        // Check if the User exists and the password is correct
         if (! $user || ! Hash::check($credentials['password'], $user->password)) {
             return response()->json([
-                'message' => 'Email hoặc mật khẩu không chính xác.'
+                'message' => self::MSG_INVALID_CREDENTIALS
             ], 401);
         }
 
-        // Tạo token qua Sanctum
+        // Create token via Sanctum
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message'      => 'Đăng nhập thành công',
+            'message'      => self::MSG_LOGIN_SUCCESS,
             'access_token' => $token,
             'token_type'   => 'Bearer',
             'user'         => [
@@ -44,14 +49,14 @@ class AuthController extends Controller
     }
 
     /**
-     * Đăng xuất và thu hồi Token hiện tại
+     * Log out and revoke the current Token
      */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Đăng xuất thành công'
+            'message' => self::MSG_LOGOUT_SUCCESS
         ], 200);
     }
 }

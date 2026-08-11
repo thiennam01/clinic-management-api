@@ -17,7 +17,7 @@ use Laravel\Sanctum\HasApiTokens; // 1. Import trait HasApiTokens
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable; // 2. Khai báo sử dụng HasApiTokens ở đây
+    use HasApiTokens, HasFactory, Notifiable; // 2. Declare the use of HasApiTokens here
 
     /**
      * User belongs to one role.
