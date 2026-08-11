@@ -16,13 +16,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Chạy RoleSeeder và PermissionSeeder
+        // 1. Run RoleSeeder and PermissionSeeder
         $this->call([
             RoleSeeder::class,
-            PermissionSeeder::class, // Nạp permissions và map quyền cho roles
+            PermissionSeeder::class, // Seed permissions and map permissions to roles
         ]);
 
-        // 2. Lấy role ADMIN để khởi tạo Admin test user
+        // 2. Get the ADMIN role to initialize the test Admin user
         $adminRole = Role::where('name', 'ADMIN')->first();
 
         User::factory()->create([
