@@ -11,7 +11,7 @@ use Illuminate\Http\JsonResponse;
 
 class SpecialtyController extends Controller
 {
-    // Danh sách chuyên khoa (có phân trang hoặc lấy tất cả)
+    // List of specialties (paginated or fetch all)
     public function index(): JsonResponse
     {
         $specialties = Specialty::latest()->paginate(10);
@@ -23,7 +23,7 @@ class SpecialtyController extends Controller
         ]);
     }
 
-    // Tạo mới chuyên khoa
+    // Create new specialty
     public function store(StoreSpecialtyRequest $request): JsonResponse
     {
         $specialty = Specialty::create($request->validated());
@@ -35,7 +35,7 @@ class SpecialtyController extends Controller
         ], 201);
     }
 
-    // Xem chi tiết 1 chuyên khoa
+    // View details of a specialty
     public function show(Specialty $specialty): JsonResponse
     {
         return response()->json([
@@ -45,7 +45,7 @@ class SpecialtyController extends Controller
         ]);
     }
 
-    // Cập nhật chuyên khoa
+    // Update a specialty
     public function update(UpdateSpecialtyRequest $request, Specialty $specialty): JsonResponse
     {
         $specialty->update($request->validated());
@@ -57,7 +57,7 @@ class SpecialtyController extends Controller
         ]);
     }
 
-    // Xóa chuyên khoa (Soft Delete)
+    // Delete a specialty (Soft Delete)
     public function destroy(Specialty $specialty): JsonResponse
     {
         $specialty->delete();

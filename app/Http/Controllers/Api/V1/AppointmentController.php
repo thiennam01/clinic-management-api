@@ -32,10 +32,10 @@ class AppointmentController extends Controller
 
     public function store(StoreAppointmentRequest $request)
     {
-        // Lấy dữ liệu đã được validate chuẩn từ StoreAppointmentRequest
+        // Retrieve validated data from StoreAppointmentRequest
         $validated = $request->validated();
         
-        // Tự động gán bệnh nhân là user đang đăng nhập
+        // Automatically assign the patient as the currently logged-in user
         $validated['patient_id'] = $request->user()->id;
 
         try {
