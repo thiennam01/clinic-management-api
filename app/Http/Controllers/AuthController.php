@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    
+    private const MSG_INVALID_CREDENTIALS = 'Email hoặc mật khẩu không chính xác.';
+    private const MSG_LOGIN_SUCCESS = 'Đăng nhập thành công';
+    private const MSG_LOGOUT_SUCCESS = 'Đăng xuất thành công';
+
     /**
      * Log in and generate a Bearer Token for the User
      */
@@ -23,7 +28,7 @@ class AuthController extends Controller
         // Check if the User exists and the password is correct
         if (! $user || ! Hash::check($credentials['password'], $user->password)) {
             return response()->json([
-                'message' => 'Email hoặc mật khẩu không chính xác.'
+                'message' => self::MSG_INVALID_CREDENTIALS
             ], 401);
         }
 
@@ -31,7 +36,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message'      => 'Đăng nhập thành công',
+            'message'      => self::MSG_LOGIN_SUCCESS,
             'access_token' => $token,
             'token_type'   => 'Bearer',
             'user'         => [
@@ -51,7 +56,7 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Đăng xuất thành công'
+            'message' => self::MSG_LOGOUT_SUCCESS
         ], 200);
     }
 }
