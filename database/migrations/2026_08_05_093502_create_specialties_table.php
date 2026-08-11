@@ -10,10 +10,10 @@ return new class extends Migration
     {
         Schema::create('specialties', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique();            // Thêm mã chuyên khoa (CK-0001,...)
-            $table->string('name')->unique();            // Tên chuyên khoa
-            $table->text('description')->nullable();    // Mô tả
-            $table->boolean('is_active')->default(true); // Trạng thái hoạt động
+            $table->string('code')->unique();            // Add specialty code (CK-0001,...)
+            $table->string('name')->unique();            // Specialty name
+            $table->text('description')->nullable();    // Description
+            $table->boolean('is_active')->default(true); // Active status
             $table->timestamps();
             $table->softDeletes();
         });

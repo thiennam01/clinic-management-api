@@ -20,19 +20,19 @@ class AppointmentService
 
     public function createAppointment(array $data)
     {
-        // 1. Kiểm tra lịch làm việc có tồn tại không
+        // 1. Check if the work schedule exists
         $schedule = $this->scheduleRepository->find($data['schedule_id']);
         if (!$schedule) {
             throw new Exception('Lịch làm việc không tồn tại.', 404);
         }
 
-        // 2. Kiểm tra xem lịch đã đủ số lượng bệnh nhân (max_patients) chưa
+        // 2. Check if the schedule has available slots (max_patients)
         $currentBookings = $this->appointmentRepository->countBySchedule($data['schedule_id']);
         if ($currentBookings >= $schedule->max_patients) {
             throw new Exception('Khung giờ này đã hết chỗ.', 422);
         }
 
-        // 3. Gán patient_id từ user đang đăng nhập (hoặc truyền vào)
+        // 3. Assign patient_id from the logged-in user (or pass in)
         return $this->appointmentRepository->create($data);
     }
 }

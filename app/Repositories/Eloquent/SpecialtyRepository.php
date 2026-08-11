@@ -43,6 +43,6 @@ class SpecialtyRepository implements SpecialtyRepositoryInterface
         $latest = $this->model->withTrashed()->latest('id')->first();
         $nextId = $latest ? $latest->id + 1 : 1;
         
-        return 'CK-' . str_pad($nextId, 4, '0', STR_PAD_LEFT); // Kết quả: CK-0001, CK-0002...
+        return 'CK-' . str_pad($nextId, 4, '0', STR_PAD_LEFT); // Result: CK-0001, CK-0002...
     }
 }

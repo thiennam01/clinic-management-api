@@ -8,7 +8,7 @@ class StoreUserRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // Cho phép request này hoạt động
+        return true; // Allow this request to proceed
     }
 
     public function rules(): array
@@ -17,7 +17,7 @@ class StoreUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:6'],
-            'role_id' => ['required', 'exists:roles,id'], // Đảm bảo role tồn tại trong DB
+            'role_id' => ['required', 'exists:roles,id'], // Ensure role exists in DB
             'is_active' => ['sometimes', 'boolean'],
         ];
     }

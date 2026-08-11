@@ -18,7 +18,7 @@ class ScheduleService
 
     public function createSchedule(array $data)
     {
-        // Kiểm tra xem lịch có bị trùng ca với chính bác sĩ đó không
+        // Check if the schedule overlaps with another shift for the same doctor
         if ($this->scheduleRepository->hasConflict($data['doctor_id'], $data['date'], $data['start_time'], $data['end_time'])) {
             throw new Exception('Bác sĩ đã có lịch làm việc trùng với khung giờ này.', 422);
         }
