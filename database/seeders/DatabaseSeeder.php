@@ -14,14 +14,14 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        // 1. Chạy các Seeder nền tảng & danh mục
+        // 1. Run RoleSeeder and PermissionSeeder
         $this->call([
             RoleSeeder::class,
-            PermissionSeeder::class,
-            SpecialtySeeder::class,
+            PermissionSeeder::class, // Seed permissions and map permissions to roles
+            SpecialtySeeder::class,  // Seed specialties for doctors
         ]);
 
-        // 2. Tạo Admin User mặc định
+        // 2. Get the ADMIN role to initialize the test Admin user
         $adminRole = Role::where('name', 'ADMIN')->first();
 
         User::updateOrCreate(
@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 3. Chạy các Seeder nghiệp vụ (phụ thuộc vào Role, Specialty)
+        // 3. Run business seeders (dependent on Role, Specialty)
         $this->call([
             DoctorSeeder::class,
             PatientSeeder::class,
