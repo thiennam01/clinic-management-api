@@ -9,12 +9,12 @@ use Illuminate\Http\Request;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
-        api: __DIR__.'/../routes/api.php', // 1. Khai báo route api
+        api: __DIR__.'/../routes/api.php', // 1. Declare API routes
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // ⑫ Đăng ký alias 'permission' cho CheckPermission middleware
+        // Register the 'permission' alias for the CheckPermission middleware
         $middleware->alias([
             'permission' => CheckPermission::class,
         ]);
