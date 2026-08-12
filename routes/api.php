@@ -35,4 +35,9 @@ Route::middleware(['auth:sanctum', 'permission'])->group(function () {
 
     // Examination API (Task T2.7)
     Route::post('/examinations', [ExaminationController::class, 'store']);
+    // Retrieve all examinations
+    Route::get('/examinations', [ExaminationController::class, 'index']);
+
+    // Retrieve a specific examination by ID (e.g., /api/examinations/12)
+    Route::get('/examinations/{id}', [ExaminationController::class, 'show']);
 });

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\Contracts\ExaminationRepositoryInterface;
 use App\Repositories\Contracts\AppointmentRepositoryInterface;
+use Illuminate\Support\Facades\DB;
 use Exception;
 
 class ExaminationService
@@ -49,40 +50,51 @@ class ExaminationService
      */
     public function createExamination(array $data)
     {
-        $appointmentId = $data['appointment_id'];
+        return DB::transaction(function () use ($data) {
+            $appointmentId = $data['appointment_id'];
 
-        // 1. Check if the given appointment exists
-        $appointment = $this->appointmentRepository->find($appointmentId);
-        if (!$appointment) {
-            throw new Exception('Lịch khám không tồn tại.', 404);
-        }
+            // 1. Check if the given appointment exists
+            $appointment = $this->appointmentRepository->find($appointmentId);
+            if (!$appointment) {
+                throw new Exception('Lịch khám không tồn tại.', 404);
+            }
 
-        // 2. Validate if appointment status is confirmed
-        if (strtolower($appointment->status) !== 'confirmed') {
-            throw new Exception('Chỉ có thể tạo phiếu khám từ lịch hẹn đã được xác nhận (confirmed).', 422);
-        }
+            // 2. Validate if appointment status is confirmed
+            if (strtolower($appointment->status) !== 'confirmed') {
+                throw new Exception('Chỉ có thể tạo phiếu khám từ lịch hẹn đã được xác nhận (confirmed).', 422);
+            }
 
-        // 3. Ensure an appointment has a maximum of one examination record
-        $existingExamination = $this->examinationRepository->findByAppointmentId($appointmentId);
-        if ($existingExamination) {
-            throw new Exception('Lịch khám này đã có phiếu khám trước đó.', 422);
-        }
+            // 3. Ensure an appointment has a maximum of one examination record
+            $existingExamination = $this->examinationRepository->findByAppointmentId($appointmentId);
+            if ($existingExamination) {
+                throw new Exception('Lịch khám này đã có phiếu khám trước đó.', 422);
+            }
 
-        // 4. Automatically derive doctor_id and patient_id from the appointment safely
-        $doctorId = is_array($appointment) ? ($appointment['doctor_id'] ?? null) : $appointment->doctor_id;
-        $patientId = is_array($appointment) ? ($appointment['patient_id'] ?? null) : $appointment->patient_id;
-        $appointmentId = is_array($appointment) ? ($appointment['id'] ?? $appointmentId) : $appointment->id;
+            // 4. Automatically derive doctor_id and patient_id from the appointment safely
+            $appointment->loadMissing('schedule');
+            
+            $doctorId = $appointment->schedule ? ($appointment->schedule->doctor_id ?? $appointment->schedule->user_id ?? null) : null;
+            $patientId = $appointment->patient_id; // Retrieve patient_id directly from the appointment pointing to the patients table
 
-        $examinationData = [
-            'appointment_id' => $appointmentId,
-            'doctor_id'      => $doctorId,
-            'patient_id'     => $patientId,
-            'diagnosis'      => $data['diagnosis'],
-            'notes'          => $data['notes'] ?? null,
-            'examined_at'    => $data['examined_at'] ?? now(),
-        ];
+            $examinationData = [
+                'appointment_id' => $appointment->id,
+                'doctor_id'      => $doctorId,
+                'patient_id'     => $patientId,
+                'diagnosis'      => $data['diagnosis'],
+                'notes'          => $data['notes'] ?? null,
+                'examined_at'    => $data['examined_at'] ?? now(),
+            ];
 
-        // 5. Create and return the examination record
-        return $this->examinationRepository->create($examinationData);
+            // 5. Create the examination record
+            $examination = $this->examinationRepository->create($examinationData);
+
+            // 6. Update appointment status to completed and rollback if it fails
+            $appointment->status = 'completed';
+            if (!$appointment->save()) {
+                throw new Exception('Không thể cập nhật trạng thái lịch hẹn.', 500);
+            }
+
+            return $examination;
+        });
     }
 }
