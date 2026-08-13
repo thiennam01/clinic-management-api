@@ -49,6 +49,130 @@ docker compose exec app php artisan test
 
 API Access Point: `http://localhost:8000/api/...`
 
+
+---
+
+## 2. Environment Variables
+
+Core environment variables in the `.env` file:
+
+| Environment Variable | Description | Sample Value |
+| --- | --- | --- |
+| `DB_CONNECTION` | Database connection driver | `pgsql` |
+| `DB_HOST` | PostgreSQL service name in Docker | `db` |
+| `DB_PORT` | PostgreSQL connection port | `5432` |
+| `DB_DATABASE` | Database name | `clinic_app` |
+| `DB_USERNAME` | Database username | `clinic` |
+| `DB_PASSWORD` | Database password | `secret` |
+| `EXAMINATION_FEE` | Default examination fee (VND) | `100000` |
+| `PAYPAL_MODE` | PayPal environment | `sandbox` |
+| `PAYPAL_CLIENT_ID` | PayPal Sandbox Client ID | `your-sandbox-client-id` |
+| `PAYPAL_CLIENT_SECRET` | PayPal Sandbox Client Secret | `your-sandbox-client-secret` |
+| `PAYPAL_CURRENCY` | Payment currency unit | `USD` |
+
+---
+
+## 3. Selected Architecture
+
+The system uniformly implements **Architecture C: Controller - Service - Repository Pattern**.
+
+All source code in the project is implemented 100% consistently with this pattern, strictly abiding by the **No Fat Controller** rule.
+
+---
+
+## 4. Rationale for Architecture C
+
+1. **Adherence to Separation of Concerns:**
+
+* **Thin Controller:** Only handles HTTP Requests, passes them through Form Request validation, invokes the Service, and returns responses formatted as API Resources.
+* **Service Layer:** Focuses 100% on application business logic (orchestrating PayPal Sandbox payment flows, invoice calculations, and medical examination processes).
+* **Repository Layer:** Encapsulates all PostgreSQL database queries (Eager loading to prevent N+1 issues, record locking via `lockForUpdate`, and aggregate queries).
+
+2. **Safe Multi-Step DB Transactions:**
+
+* Complex operations such as *automatic prescription processing with inventory reduction (`medicines.stock`)* or *invoice creation & PayPal Sandbox capture* require high data integrity. Using a repository separates query/locking logic from the service, keeping the `DB::transaction()` blocks clean and manageable.
+
+3. **Optimization for Feature & Unit Testing:**
+
+* Communicating through **Repository Interfaces** allows for straightforward data mocking when writing unit tests for services without relying on actual database connections.
+
+4. **High Compatibility with Custom RBAC Mechanism:**
+
+* Breaking down controllers into "Thin Controllers" enables the `CheckPermission` middleware to evaluate permissions in the format `CONTROLLER.ACTION` (e.g., `PATIENTS.FINDALL`) independently right at the HTTP layer.
+
+---
+
+## 5. Request Flow Diagram
+
+When a client sends a request to the API, the processing flow traverses the layers in this order:
+
+
+ Client (Postman / Frontend)
+           │
+           │  1. HTTP Request (Sanctum API Token)
+           ▼
+┌─────────────────────────────────────────────────────────┐
+│ CheckPermission Middleware                              │
+│ - Automatically maps and checks permission CONTROLLER.ACTION│
+│ - If unauthorized -> Returns HTTP 403 Forbidden         │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                           │  2. Passes valid request
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│ Thin Controller (e.g., AuthController, PatientController)│
+│ - Validates input data via Form Request                 │
+│ - Routes the request to the corresponding Service       │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                           │  3. Invokes Business Logic method
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│ Service Layer (e.g., AuthService, ExaminationService)   │
+│ - Manages Business Logic & DB Transactions              │
+│ - Instructs Repository to interact with Data            │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                           │  4. Invokes Repository method
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│ Repository Layer                                        │
+│ - Executes Query statements (Eloquent ORM / SQL)        │
+│ - Eager Loading, Pessimistic Locking (lockForUpdate)    │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                           │  5. Query / Update
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│ PostgreSQL 16 Database (`db` container)                 │
+└─────────────────────────────────────────────────────────┘
+
+## 📌Project Rules & Development Guidelines
+
+### 1. Naming Conventions & Variables (Quy chuẩn đặt tên)
+* **Database Columns & Payload Requests:** Always use **`appointment_date`** for appointment timestamps. Avoid using `scheduled_at` to prevent schema mismatch across modules.
+* **Repositories & Services:** Follow the Repository Pattern (`AppointmentRepositoryInterface` -> `AppointmentRepository`) and keep business logic inside Service classes.
+
+---
+
+### 2. Appointment Conflict Logic (Task T2.6 - Chống trùng lịch)
+* **Rule:** A doctor cannot have overlapping appointments within a **30-minute time slot**.
+* **Implementation:** 
+  * The system calculates a 30-minute window starting from `appointment_date`.
+  * It checks active appointments (`status != 'cancelled'`) for the same doctor.
+  * If an overlap is detected (`StartNew < EndExisting && EndNew > StartExisting`), the system throws a `422 Unprocessable Entity` error.
+  * Cancelled appointments (`status = 'cancelled'`) are automatically ignored, allowing users to rebook the same time slot if a previous appointment was canceled.
+
+---
+
+### 3. Appointment State Machine (Task T2.5 - Quản lý trạng thái)
+Valid status transitions for an appointment:
+* `pending` ➔ `scheduled`, `confirmed`, `cancelled`
+* `scheduled` ➔ `confirmed`, `cancelled`
+* `confirmed` ➔ `completed`, `cancelled`
+* `completed` ➔ *(No further transitions)*
+* `cancelled` ➔ *(No further transitions)*
+
 ---
 
 ## 2. Environment Variables
@@ -147,3 +271,5 @@ When a client sends a request to the API, the processing flow traverses the laye
 └─────────────────────────────────────────────────────────┘
 
 ```
+
+
