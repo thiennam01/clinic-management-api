@@ -22,28 +22,28 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
 
-        // API luôn trả JSON thay vì HTML
+        // Always render JSON for API requests instead of HTML
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
 
-        // Chuẩn hóa Exception response cho API
+        // Standardize exception responses for API
         $exceptions->render(function (\Throwable $e, Request $request) {
 
             if (! $request->is('api/*')) {
                 return null;
             }
 
-            // 1. Xử lý riêng cho lỗi Validation (HTTP 422) theo đề bài
+            // 1. Handle Validation Exception (HTTP 422)
             if ($e instanceof ValidationException) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Dữ liệu không hợp lệ',
+                    'message' => 'The given data was invalid.',
                     'errors'  => $e->errors(),
                 ], 422);
             }
 
-            // 2. Xử lý các HTTP Status Code khác (401, 403, 404, 405...)
+            // 2. Handle other HTTP status codes (401, 403, 404, 405...)
             $status = $e instanceof HttpExceptionInterface
                 ? $e->getStatusCode()
                 : 500;

@@ -7,9 +7,11 @@ use App\Http\Controllers\Api\V1\DoctorController;
 use App\Http\Controllers\Api\ScheduleController;
 use App\Http\Controllers\Api\V1\AppointmentController;
 use App\Http\Controllers\Api\V1\ExaminationController;
+use App\Http\Controllers\Api\V1\MedicineController; 
 use App\Http\Controllers\PatientController;
 use Illuminate\Support\Facades\Route;
 
+// Public authentication route
 Route::post('login', [AuthController::class, 'login']);
 
 // 1. Routes requiring basic authentication (Sanctum)
@@ -37,7 +39,11 @@ Route::middleware(['auth:sanctum', 'permission'])->group(function () {
     Route::post('/examinations', [ExaminationController::class, 'store']);
     // Retrieve all examinations
     Route::get('/examinations', [ExaminationController::class, 'index']);
-
     // Retrieve a specific examination by ID (e.g., /api/examinations/12)
     Route::get('/examinations/{id}', [ExaminationController::class, 'show']);
+
+    // Medicine Management API (Task T3.1: CRUD medicines and prescribed history)
+    Route::apiResource('medicines', MedicineController::class);
+    // View prescribed orders containing a specific medicine
+    Route::get('medicines/{id}/prescriptions', [MedicineController::class, 'prescribedHistory']);
 });

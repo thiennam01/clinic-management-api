@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Constants\AuthConstant;
-use App\Http\Requests\Auth\LoginRequest; // Hoặc dùng Request trực tiếp nếu chưa tạo FormRequest
+use App\Http\Requests\Auth\LoginRequest; 
 use App\Services\AuthService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
