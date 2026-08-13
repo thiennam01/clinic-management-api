@@ -31,5 +31,11 @@ class DatabaseSeeder extends Seeder
                 'role_id'  => $adminRole?->id,
             ]
         );
+
+        // 3. Chạy các Seeder nghiệp vụ (phụ thuộc vào Role, Specialty)
+        $this->call([
+            DoctorSeeder::class,
+            PatientSeeder::class,
+        ]);
     }
 }
