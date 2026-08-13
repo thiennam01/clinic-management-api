@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Doctor;
 
+use App\Constants\DoctorConstant;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -26,7 +27,7 @@ class UpdateDoctorRequest extends FormRequest
                 function ($attribute, $value, $fail) {
                     $user = User::with('role')->find($value);
                     if ($user && $user->role && $user->role->name !== 'DOCTOR') {
-                        $fail('Người dùng được chọn không phải là Bác sĩ (Doctor).');
+                        $fail(DoctorConstant::MSG_USER_NOT_DOCTOR);
                     }
                 },
             ],

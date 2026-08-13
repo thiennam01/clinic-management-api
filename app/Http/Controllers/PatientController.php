@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\PatientConstant;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
 use App\Http\Resources\BaseResourceCollection;
@@ -20,11 +21,11 @@ class PatientController extends Controller
 
     public function index(Request $request)
     {
-        // Lấy tất cả query parameters từ request (bao gồm cả 'q' và 'per_page')
+        // Retrieve all query parameters from request (including 'q' and 'per_page')
         $filters = $request->only(['q']);
         $perPage = (int) $request->get('per_page', 10);
         
-        // Truyền $filters vào Service để xử lý tìm kiếm
+        // Pass $filters to the Service to handle searching/filtering
         $patients = $this->patientService->getAllPatients($filters, $perPage);
 
         return new BaseResourceCollection($patients);
@@ -36,7 +37,7 @@ class PatientController extends Controller
 
         return $this->successResponse(
             new PatientResource($patient),
-            'Tạo hồ sơ bệnh nhân thành công',
+            PatientConstant::MSG_CREATE_SUCCESS,
             201 
         );
     }
@@ -47,7 +48,7 @@ class PatientController extends Controller
 
         return $this->successResponse(
             new PatientResource($patient),
-            'Chi tiết hồ sơ bệnh nhân'
+            PatientConstant::MSG_GET_DETAIL_SUCCESS
         );
     }
 
@@ -57,7 +58,7 @@ class PatientController extends Controller
 
         return $this->successResponse(
             new PatientResource($patient),
-            'Cập nhật hồ sơ bệnh nhân thành công'
+            PatientConstant::MSG_UPDATE_SUCCESS
         );
     }
 
@@ -67,7 +68,7 @@ class PatientController extends Controller
 
         return $this->successResponse(
             null,
-            'Xóa hồ sơ bệnh nhân thành công'
+            PatientConstant::MSG_DELETE_SUCCESS
         );
     }
 }

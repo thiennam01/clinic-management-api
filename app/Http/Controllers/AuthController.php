@@ -2,56 +2,48 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Constants\AuthConstant;
+use App\Http\Requests\Auth\LoginRequest; // Hoặc dùng Request trực tiếp nếu chưa tạo FormRequest
+use App\Services\AuthService;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    use ApiResponse;
+
+    public function __construct(
+        protected AuthService $authService
+    ) {}
+
     /**
-     * Đăng nhập và tạo Bearer Token cho User
+     * Authenticate user and generate a Bearer Token.
      */
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required|string',
+            'email'    => ['required', 'email'],
+            'password' => ['required', 'string'],
         ]);
 
-        $user = User::where('email', $credentials['email'])->first();
+        $result = $this->authService->login($credentials);
 
-        // Kiểm tra xem User có tồn tại và mật khẩu có đúng không
-        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
-            return response()->json([
-                'message' => 'Email hoặc mật khẩu không chính xác.'
-            ], 401);
-        }
-
-        // Tạo token qua Sanctum
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message'      => 'Đăng nhập thành công',
-            'access_token' => $token,
-            'token_type'   => 'Bearer',
-            'user'         => [
-                'id'    => $user->id,
-                'name'  => $user->name,
-                'email' => $user->email,
-                'role'  => $user->role ? $user->role->name : null,
-            ],
-        ], 200);
+        return $this->successResponse(
+            $result,
+            AuthConstant::MSG_LOGIN_SUCCESS
+        );
     }
 
     /**
-     * Đăng xuất và thu hồi Token hiện tại
+     * Revoke the current user's token (Logout).
      */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $this->authService->logout($request->user());
 
-        return response()->json([
-            'message' => 'Đăng xuất thành công'
-        ], 200);
+        return $this->successResponse(
+            null,
+            AuthConstant::MSG_LOGOUT_SUCCESS
+        );
     }
 }

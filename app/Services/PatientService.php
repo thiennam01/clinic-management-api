@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Constants\PatientConstant;
 use App\Models\Patient;
 use App\Repositories\Contracts\PatientRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -31,7 +32,7 @@ class PatientService
         $patient = $this->patientRepository->findById($id);
 
         if (!$patient) {
-            abort(404, 'Patient not found');
+            abort(404, PatientConstant::MSG_NOT_FOUND);
         }
 
         return $patient;

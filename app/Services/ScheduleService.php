@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Constants\ScheduleConstant;
 use App\Repositories\Contracts\ScheduleRepositoryInterface;
 use Exception;
 
@@ -11,18 +12,24 @@ class ScheduleService
         protected ScheduleRepositoryInterface $scheduleRepository
     ) {}
 
+    /**
+     * Get paginated schedules based on filters.
+     */
     public function getSchedules(array $filters, int $perPage = 10)
     {
         return $this->scheduleRepository->paginate($filters, $perPage);
     }
 
+    /**
+     * Create a new schedule with conflict validation.
+     */
     public function createSchedule(array $data)
     {
-        // Kiểm tra xem lịch có bị trùng ca với chính bác sĩ đó không
+        // Check if the doctor already has a conflicting schedule during this timeframe
         if ($this->scheduleRepository->hasConflict($data['doctor_id'], $data['date'], $data['start_time'], $data['end_time'])) {
-            throw new Exception('Bác sĩ đã có lịch làm việc trùng với khung giờ này.', 422);
+            throw new Exception(ScheduleConstant::MSG_CONFLICT, 422);
         }
 
         return $this->scheduleRepository->create($data);
     }
-}
+}   

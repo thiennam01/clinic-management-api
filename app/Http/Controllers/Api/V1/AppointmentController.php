@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Constants\AppointmentConstant;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Resources\AppointmentResource;
@@ -19,7 +20,7 @@ class AppointmentController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Lấy danh sách lịch hẹn thành công',
+            'message' => AppointmentConstant::MSG_GET_LIST_SUCCESS,
             'data' => AppointmentResource::collection($appointments),
             'meta' => [
                 'current_page' => $appointments->currentPage(),
@@ -32,10 +33,10 @@ class AppointmentController extends Controller
 
     public function store(StoreAppointmentRequest $request)
     {
-        // Lấy dữ liệu đã được validate chuẩn từ StoreAppointmentRequest
+        // Retrieve validated data from StoreAppointmentRequest
         $validated = $request->validated();
         
-        // Tự động gán bệnh nhân là user đang đăng nhập
+        // Automatically assign the authenticated user as the patient
         $validated['patient_id'] = $request->user()->id;
 
         try {
@@ -43,7 +44,7 @@ class AppointmentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Đặt lịch khám thành công!',
+                'message' => AppointmentConstant::MSG_CREATE_SUCCESS,
                 'data' => new AppointmentResource($appointment)
             ], 201);
 
@@ -66,7 +67,7 @@ class AppointmentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Cập nhật trạng thái lịch khám thành công!',
+                'message' => AppointmentConstant::MSG_UPDATE_STATUS_SUCCESS,
                 'data' => new AppointmentResource($appointment)
             ]);
 

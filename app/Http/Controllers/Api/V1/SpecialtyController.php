@@ -2,69 +2,76 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Constants\SpecialtyConstant;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Specialty\StoreSpecialtyRequest;
 use App\Http\Requests\Specialty\UpdateSpecialtyRequest;
+use App\Http\Resources\BaseResourceCollection;
 use App\Http\Resources\SpecialtyResource;
 use App\Models\Specialty;
-use Illuminate\Http\JsonResponse;
+use App\Services\SpecialtyService;
+use App\Traits\ApiResponse;
+use Illuminate\Http\Request;
 
 class SpecialtyController extends Controller
 {
-    // Danh sách chuyên khoa (có phân trang hoặc lấy tất cả)
-    public function index(): JsonResponse
-    {
-        $specialties = Specialty::latest()->paginate(10);
+    use ApiResponse;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lấy danh sách chuyên khoa thành công',
-            'data' => SpecialtyResource::collection($specialties)->response()->getData(true)
-        ]);
+    public function __construct(
+        protected SpecialtyService $specialtyService
+    ) {}
+
+    // Get list of specialties with pagination
+    public function index(Request $request)
+    {
+        $perPage = (int) $request->get('per_page', 10);
+        $specialties = $this->specialtyService->getAllSpecialties($perPage);
+
+        return new BaseResourceCollection($specialties);
     }
 
-    // Tạo mới chuyên khoa
-    public function store(StoreSpecialtyRequest $request): JsonResponse
+    // Create a new specialty
+    public function store(StoreSpecialtyRequest $request)
     {
-        $specialty = Specialty::create($request->validated());
+        $specialty = $this->specialtyService->createSpecialty($request->validated());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Tạo chuyên khoa thành công',
-            'data' => new SpecialtyResource($specialty)
-        ], 201);
+        return $this->successResponse(
+            new SpecialtyResource($specialty),
+            SpecialtyConstant::MSG_CREATE_SUCCESS,
+            201
+        );
     }
 
-    // Xem chi tiết 1 chuyên khoa
-    public function show(Specialty $specialty): JsonResponse
+    // Show specialty details
+    public function show(Specialty $specialty)
     {
-        return response()->json([
-            'success' => true,
-            'message' => 'Lấy thông tin chuyên khoa thành công',
-            'data' => new SpecialtyResource($specialty)
-        ]);
+        $specialtyData = $this->specialtyService->getSpecialtyById($specialty);
+
+        return $this->successResponse(
+            new SpecialtyResource($specialtyData),
+            SpecialtyConstant::MSG_GET_DETAIL_SUCCESS
+        );
     }
 
-    // Cập nhật chuyên khoa
-    public function update(UpdateSpecialtyRequest $request, Specialty $specialty): JsonResponse
+    // Update specialty information
+    public function update(UpdateSpecialtyRequest $request, Specialty $specialty)
     {
-        $specialty->update($request->validated());
+        $updatedSpecialty = $this->specialtyService->updateSpecialty($specialty, $request->validated());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Cập nhật chuyên khoa thành công',
-            'data' => new SpecialtyResource($specialty)
-        ]);
+        return $this->successResponse(
+            new SpecialtyResource($updatedSpecialty),
+            SpecialtyConstant::MSG_UPDATE_SUCCESS
+        );
     }
 
-    // Xóa chuyên khoa (Soft Delete)
-    public function destroy(Specialty $specialty): JsonResponse
+    // Delete a specialty (Soft Delete)
+    public function destroy(Specialty $specialty)
     {
-        $specialty->delete();
+        $this->specialtyService->deleteSpecialty($specialty);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Xóa chuyên khoa thành công'
-        ]);
+        return $this->successResponse(
+            null,
+            SpecialtyConstant::MSG_DELETE_SUCCESS
+        );
     }
 }

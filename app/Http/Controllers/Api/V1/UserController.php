@@ -2,129 +2,76 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Constants\UserConstant;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Resources\BaseResourceCollection;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
+use App\Services\UserService;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    // Giả định role_id của ADMIN là 1 (hoặc điều chỉnh theo DB của dự án)
-    private const ADMIN_ROLE_ID = 1;
+    use ApiResponse;
 
-    public function index(Request $request): JsonResponse
+    public function __construct(
+        protected UserService $userService
+    ) {}
+
+    // Get paginated list of users
+    public function index(Request $request)
     {
-        $users = User::latest()->paginate($request->get('per_page', 15));
+        $perPage = (int) $request->get('per_page', 15);
+        $users = $this->userService->getAllUsers($perPage);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lấy danh sách người dùng thành công',
-            'data' => UserResource::collection($users->items()),
-            'meta' => [
-                'current_page' => $users->currentPage(),
-                'last_page' => $users->lastPage(),
-                'per_page' => $users->perPage(),
-                'total' => $users->total(),
-            ]
-        ]);
+        return new BaseResourceCollection($users);
     }
 
-    public function store(StoreUserRequest $request): JsonResponse
+    // Create a new user
+    public function store(StoreUserRequest $request)
     {
-        $data = $request->validated();
-        $data['password'] = Hash::make($data['password']);
+        $user = $this->userService->createUser($request->validated());
 
-        $user = User::create($data);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Tạo người dùng thành công',
-            'data' => new UserResource($user)
-        ], 201);
+        return $this->successResponse(
+            new UserResource($user),
+            UserConstant::MSG_CREATE_SUCCESS,
+            201
+        );
     }
 
-    public function show(User $user): JsonResponse
+    // Show user details
+    public function show(User $user)
     {
-        return response()->json([
-            'success' => true,
-            'message' => 'Lấy thông tin người dùng thành công',
-            'data' => new UserResource($user)
-        ]);
+        $userData = $this->userService->getUserById($user);
+
+        return $this->successResponse(
+            new UserResource($userData),
+            UserConstant::MSG_GET_DETAIL_SUCCESS
+        );
     }
 
-    public function update(UpdateUserRequest $request, User $user): JsonResponse
+    // Update user information
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $data = $request->validated();
+        $updatedUser = $this->userService->updateUser($user, $request->validated());
 
-        // --- BUSINESS LOGIC: BẢO VỆ ADMIN CUỐI CÙNG ---
-        $isCurrentAdmin = ($user->role_id === self::ADMIN_ROLE_ID);
-        
-        if ($isCurrentAdmin) {
-            $newRoleId = $data['role_id'] ?? $user->role_id;
-            $newIsActive = $data['is_active'] ?? $user->is_active;
-
-            $isChangingRole = ($newRoleId !== self::ADMIN_ROLE_ID);
-            $isDeactivating = ($newIsActive === false || $newIsActive === 0);
-
-            if ($isChangingRole || $isDeactivating) {
-                // Đếm xem còn bao nhiêu Admin khác đang active trong hệ thống (ngoài user hiện tại ra)
-                $otherActiveAdminsCount = User::where('role_id', self::ADMIN_ROLE_ID)
-                    ->where(function ($query) {
-                        $query->where('is_active', true)
-                              ->orWhereNull('is_active');
-                    })
-                    ->where('id', '!=', $user->id)
-                    ->count();
-
-                if ($otherActiveAdminsCount === 0) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Không thể thay đổi vai trò hoặc vô hiệu hóa Admin cuối cùng trong hệ thống.',
-                    ], 422);
-                }
-            }
-        }
-        // ---------------------------------------------
-
-        if (isset($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
-        }
-
-        $user->update($data);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Cập nhật người dùng thành công',
-            'data' => new UserResource($user)
-        ]);
+        return $this->successResponse(
+            new UserResource($updatedUser),
+            UserConstant::MSG_UPDATE_SUCCESS
+        );
     }
 
-    public function destroy(User $user): JsonResponse
+    // Delete a user
+    public function destroy(User $user)
     {
-        // Kiểm tra chặn luôn nếu xóa Admin cuối cùng (nếu có API delete)
-        if ($user->role_id === self::ADMIN_ROLE_ID) {
-            $otherActiveAdminsCount = User::where('role_id', self::ADMIN_ROLE_ID)
-                ->where('id', '!=', $user->id)
-                ->count();
+        $this->userService->deleteUser($user);
 
-            if ($otherActiveAdminsCount === 0) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Không thể xóa Admin cuối cùng trong hệ thống.',
-                ], 422);
-            }
-        }
-
-        $user->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Xóa người dùng thành công',
-            'data' => null
-        ]);
+        return $this->successResponse(
+            null,
+            UserConstant::MSG_DELETE_SUCCESS
+        );
     }
 }
