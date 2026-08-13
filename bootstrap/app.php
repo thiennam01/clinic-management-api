@@ -11,11 +11,12 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
-        api: __DIR__.'/../routes/api.php',
+        api: __DIR__.'/../routes/api.php', // 1. Declare API routes
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Register the 'permission' alias for the CheckPermission middleware
         $middleware->alias([
             'permission' => CheckPermission::class,
         ]);
