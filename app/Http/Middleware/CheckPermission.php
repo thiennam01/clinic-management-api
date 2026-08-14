@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckPermission
 {
     /**
-     * ⑧ Map action (method name) -> ACTION (RESTful Verb)
+     * Map action (method name) -> ACTION (RESTful Verb)
      */
     protected array $actionMap = [
         'index'        => 'FINDALL',
@@ -28,14 +28,14 @@ class CheckPermission
 
     public function handle(Request $request, Closure $next): Response
     {
-        // ⑩ Lấy user hiện tại
+        // Get current user
         $user = $request->user();
 
         if (!$user) {
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
-        // ⑥ Lấy Controller class + action method hiện tại từ Route
+        // Get current Controller class + action method from Route
         $route = $request->route();
         $action = $route?->getAction();
 
@@ -43,26 +43,26 @@ class CheckPermission
             return $next($request);
         }
 
-        // Tách chuỗi Controller@method (VD: "App\Http\Controllers\UserController@index")
+        // Split the Controller@method string (e.g., "App\Http\Controllers\UserController@index")
         [$controller, $method] = explode('@', $action['controller']);
 
-        // ⑦ Map Controller -> RESOURCE (VD: UserController -> USERS)
+        // Map Controller -> RESOURCE (VD: UserController -> USERS)
         $controllerName = class_basename($controller);
         $rawResource = str_replace('Controller', '', $controllerName);
         $resource = strtoupper(Str::plural($rawResource)); // Đưa về dạng số nhiều viết hoa
 
-        // ⑧ Map action -> ACTION
+        // Map action -> ACTION
         $permissionAction = $this->actionMap[$method] ?? strtoupper($method);
 
-        // ⑨ Ghép RESOURCE.ACTION (VD: USERS.FINDALL)
+        // Combine RESOURCE.ACTION (e.g., USERS.FINDALL)
         $requiredPermission = "{$resource}.{$permissionAction}";
 
-        // ⑩ Check User -> Role -> Permission có tồn tại trong DB không
+        // Check if User -> Role -> Permission exists in the DB
         $hasPermission = $user->role?->permissions()
             ->where('name', $requiredPermission)
             ->exists();
 
-        // ⑪ Không có quyền -> Trả về lỗi 403 Forbidden
+        // No permission -> Return a 403 Forbidden error
         if (!$hasPermission) {
             return response()->json([
                 'message' => 'Forbidden: You do not have permission to access this resource.',
