@@ -36,6 +36,12 @@ class AppServiceProvider extends ServiceProvider
         );
         // Bind Examination Repository
         $this->app->bind(ExaminationRepositoryInterface::class, ExaminationRepository::class);
+        
+        // Bind Prescription Repository 
+        $this->app->bind(
+            \App\Repositories\Contracts\PrescriptionRepositoryInterface::class,
+            \App\Repositories\Eloquent\PrescriptionRepository::class
+        );
     }   
 
     /**
