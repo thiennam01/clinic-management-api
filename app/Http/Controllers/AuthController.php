@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Constants\AuthConstant;
-use App\Http\Requests\Auth\LoginRequest; // Hoặc dùng Request trực tiếp nếu chưa tạo FormRequest
+use App\Http\Requests\Auth\LoginRequest;
 use App\Services\AuthService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -30,7 +30,7 @@ class AuthController extends Controller
 
         return $this->successResponse(
             $result,
-            AuthConstant::MSG_LOGIN_SUCCESS
+            AuthConstant::MSG_LOGIN_SUCCESS ?? 'Login successful'
         );
     }
 
@@ -43,7 +43,7 @@ class AuthController extends Controller
 
         return $this->successResponse(
             null,
-            AuthConstant::MSG_LOGOUT_SUCCESS
+            AuthConstant::MSG_LOGOUT_SUCCESS ?? 'Logout successful'
         );
     }
 }
