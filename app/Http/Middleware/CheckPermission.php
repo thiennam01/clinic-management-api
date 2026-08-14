@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckPermission
 {
     /**
-     * Map action (method name) -> ACTION (RESTful Verb)
+     * Map controller method name to RESTful action verb.
      */
     protected array $actionMap = [
         'index'        => 'FINDALL',
@@ -28,14 +28,14 @@ class CheckPermission
 
     public function handle(Request $request, Closure $next): Response
     {
-        // Get current user
+        // Get current authenticated user
         $user = $request->user();
 
         if (!$user) {
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
-        // Get current Controller class + action method from Route
+        // Get Controller class and action method from the current Route
         $route = $request->route();
         $action = $route?->getAction();
 
@@ -43,26 +43,26 @@ class CheckPermission
             return $next($request);
         }
 
-        // Split the Controller@method string (e.g., "App\Http\Controllers\UserController@index")
+        // Parse Controller@method string (e.g., "App\Http\Controllers\UserController@index")
         [$controller, $method] = explode('@', $action['controller']);
 
-        // Map Controller -> RESOURCE (VD: UserController -> USERS)
+        // Map Controller to RESOURCE (e.g., UserController -> USERS)
         $controllerName = class_basename($controller);
         $rawResource = str_replace('Controller', '', $controllerName);
-        $resource = strtoupper(Str::plural($rawResource)); // Đưa về dạng số nhiều viết hoa
+        $resource = strtoupper(Str::plural($rawResource)); // Convert to uppercase plural form
 
-        // Map action -> ACTION
+        // Map method to ACTION
         $permissionAction = $this->actionMap[$method] ?? strtoupper($method);
 
-        // Combine RESOURCE.ACTION (e.g., USERS.FINDALL)
+        // Combine into format: RESOURCE.ACTION (e.g., USERS.FINDALL)
         $requiredPermission = "{$resource}.{$permissionAction}";
 
-        // Check if User -> Role -> Permission exists in the DB
+        // Check if the user's role possesses this permission in the database
         $hasPermission = $user->role?->permissions()
             ->where('name', $requiredPermission)
             ->exists();
 
-        // No permission -> Return a 403 Forbidden error
+        // Deny access with 403 Forbidden if permission is missing
         if (!$hasPermission) {
             return response()->json([
                 'message' => 'Forbidden: You do not have permission to access this resource.',
