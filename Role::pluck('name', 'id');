@@ -1,0 +1,39 @@
+[90m= [39m[34;4mIlluminate\Database\Eloquent\Collection[39;24m {#8136
+    [34mall[39m: [
+      [34;4mApp\Models\Role[39;24m {#8134
+        [34mid[39m: [35m1[39m,
+        [34mname[39m: [32m"[39m[32mADMIN[39m[32m"[39m,
+        [34mdisplay_name[39m: [32m"[39m[32mQuản trị viên[39m[32m"[39m,
+        [34mcreated_at[39m: [32m"[39m[32m2026-08-07 10:13:23[39m[32m"[39m,
+        [34mupdated_at[39m: [32m"[39m[32m2026-08-07 10:13:23[39m[32m"[39m,
+      },
+      [34;4mApp\Models\Role[39;24m {#8135
+        [34mid[39m: [35m2[39m,
+        [34mname[39m: [32m"[39m[32mRECEPTIONIST[39m[32m"[39m,
+        [34mdisplay_name[39m: [32m"[39m[32mLễ tân[39m[32m"[39m,
+        [34mcreated_at[39m: [32m"[39m[32m2026-08-07 10:13:23[39m[32m"[39m,
+        [34mupdated_at[39m: [32m"[39m[32m2026-08-07 10:13:23[39m[32m"[39m,
+      },
+      [34;4mApp\Models\Role[39;24m {#8585
+        [34mid[39m: [35m3[39m,
+        [34mname[39m: [32m"[39m[32mDOCTOR[39m[32m"[39m,
+        [34mdisplay_name[39m: [32m"[39m[32mBác sĩ[39m[32m"[39m,
+        [34mcreated_at[39m: [32m"[39m[32m2026-08-07 10:13:23[39m[32m"[39m,
+        [34mupdated_at[39m: [32m"[39m[32m2026-08-07 10:13:23[39m[32m"[39m,
+      },
+      [34;4mApp\Models\Role[39;24m {#8587
+        [34mid[39m: [35m4[39m,
+        [34mname[39m: [32m"[39m[32mPHARMACIST[39m[32m"[39m,
+        [34mdisplay_name[39m: [32m"[39m[32mDược sĩ[39m[32m"[39m,
+        [34mcreated_at[39m: [32m"[39m[32m2026-08-07 10:13:23[39m[32m"[39m,
+        [34mupdated_at[39m: [32m"[39m[32m2026-08-07 10:13:23[39m[32m"[39m,
+      },
+      [34;4mApp\Models\Role[39;24m {#8586
+        [34mid[39m: [35m5[39m,
+        [34mname[39m: [32m"[39m[32mCASHIER[39m[32m"[39m,
+        [34mdisplay_name[39m: [32m"[39m[32mThu ngân[39m[32m"[39m,
+        [34mcreated_at[39m: [32m"[39m[32m2026-08-07 10:13:23[39m[32m"[39m,
+        [34mupdated_at[39m: [32m"[39m[32m2026-08-07 10:13:23[39m[32m"[39m,
+      },
+    ],
+  }
