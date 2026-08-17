@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\MedicineController;
 use App\Http\Controllers\Api\V1\PrescriptionController;
 use App\Http\Controllers\PatientController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\InvoiceController;
 
 // Public authentication route
 Route::post('login', [AuthController::class, 'login']);
@@ -57,4 +58,9 @@ Route::middleware(['auth:sanctum', 'permission'])->group(function () {
     Route::post('/prescriptions/{prescription}/items', [PrescriptionController::class, 'addItem']);
     Route::put('/prescription-items/{item}', [PrescriptionController::class, 'updateItem']);
     Route::delete('/prescription-items/{item}', [PrescriptionController::class, 'removeItem']);
+
+    Route::post('/invoices', [InvoiceController::class, 'store']);
+    Route::put('/invoices/{invoice}', [InvoiceController::class, 'update']);
+    Route::get('/invoices/{invoice}', [InvoiceController::class, 'show']);
 });
+

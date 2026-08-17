@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+
 class Examination extends Model
 {
     use HasFactory;
@@ -53,5 +54,13 @@ class Examination extends Model
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class); // Adjust model name if your project uses User for patients
+    }
+
+    /**
+     * 1-to-1 or 1-to-many relationship to the prescriptions table depending on your database design
+     */
+    public function prescription()
+    {
+        return $this->hasOne(Prescription::class); 
     }
 }
