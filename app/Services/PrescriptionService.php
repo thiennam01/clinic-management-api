@@ -6,6 +6,7 @@ use App\Repositories\Contracts\PrescriptionRepositoryInterface;
 use App\Models\Prescription;
 use App\Models\PrescriptionItem;
 use App\Constants\PrescriptionConstant;
+use Illuminate\Support\Facades\DB;
 use Exception;
 
 class PrescriptionService
@@ -41,7 +42,7 @@ class PrescriptionService
         $prescription = Prescription::with(['items', 'examination', 'doctor'])->find($id);
 
         if (!$prescription) {
-            throw new Exception('Prescription not found.');
+            throw new Exception(PrescriptionConstant::NOT_FOUND);
         }
 
         return $prescription;
@@ -52,10 +53,12 @@ class PrescriptionService
      */
     public function createPrescription(array $data): Prescription
     {
-        $items = $data['items'];
-        unset($data['items']);
+        return DB::transaction(function () use ($data) {
+            $items = $data['items'] ?? [];
+            unset($data['items']);
 
-        return $this->prescriptionRepository->createWithItems($data, $items);
+            return $this->prescriptionRepository->createWithItems($data, $items);
+        });
     }
 
     /**
@@ -63,11 +66,13 @@ class PrescriptionService
      */
     public function addItem(int $prescriptionId, array $data): PrescriptionItem
     {
-        if ($this->prescriptionRepository->checkMedicineExists($prescriptionId, $data['medicine_id'])) {
-            throw new Exception(PrescriptionConstant::MEDICINE_ALREADY_EXISTS ?? 'Medicine already exists in prescription.');
-        }
+        return DB::transaction(function () use ($prescriptionId, $data) {
+            if ($this->prescriptionRepository->checkMedicineExists($prescriptionId, $data['medicine_id'])) {
+                throw new Exception(PrescriptionConstant::MEDICINE_ALREADY_EXISTS);
+            }
 
-        return $this->prescriptionRepository->addItemToPrescription($prescriptionId, $data);
+            return $this->prescriptionRepository->addItemToPrescription($prescriptionId, $data);
+        });
     }
 
     /**
@@ -75,7 +80,9 @@ class PrescriptionService
      */
     public function updateItem(int $itemId, array $data): PrescriptionItem
     {
-        return $this->prescriptionRepository->updatePrescriptionItem($itemId, $data);
+        return DB::transaction(function () use ($itemId, $data) {
+            return $this->prescriptionRepository->updatePrescriptionItem($itemId, $data);
+        });
     }
 
     /**
@@ -83,6 +90,8 @@ class PrescriptionService
      */
     public function removeItem(int $itemId): bool
     {
-        return $this->prescriptionRepository->removePrescriptionItem($itemId);
+        return DB::transaction(function () use ($itemId) {
+            return $this->prescriptionRepository->removePrescriptionItem($itemId);
+        });
     }
 }
