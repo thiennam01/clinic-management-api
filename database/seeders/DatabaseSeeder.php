@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             PermissionSeeder::class, // Seed permissions and map permissions to roles
+            SpecialtySeeder::class, // Seed specialties for doctors
         ]);
 
         // 2. Get the ADMIN role to initialize the test Admin user
@@ -31,5 +32,11 @@ class DatabaseSeeder extends Seeder
                 'role_id'  => $adminRole?->id,
             ]
         );
+
+        // 3. Run business seeders (dependent on Role, Specialty)
+        $this->call([
+            DoctorSeeder::class,
+            PatientSeeder::class,
+        ]);
     }
 }
