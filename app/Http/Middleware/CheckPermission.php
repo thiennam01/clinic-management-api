@@ -49,7 +49,7 @@ class CheckPermission
         // Map Controller -> RESOURCE (VD: UserController -> USERS)
         $controllerName = class_basename($controller);
         $rawResource = str_replace('Controller', '', $controllerName);
-        $resource = strtoupper(Str::plural($rawResource)); // Đưa về dạng số nhiều viết hoa
+        $resource = strtoupper(Str::plural($rawResource)); // CONVERTED TO UPPERCASE PLURALS
 
         // Map action -> ACTION
         $permissionAction = $this->actionMap[$method] ?? strtoupper($method);
