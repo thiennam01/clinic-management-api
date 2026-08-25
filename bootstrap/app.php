@@ -28,14 +28,30 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*'),
         );
 
+<<<<<<< HEAD
         // Standardize exception response for the API
+=======
+<<<<<<< HEAD
+        // Standardize exception response for the API
+=======
+        // Standardize Exception response for API
+>>>>>>> main
+>>>>>>> main
         $exceptions->render(function (\Throwable $e, Request $request) {
 
             if (! $request->is('api/*')) {
                 return null;
             }
 
+<<<<<<< HEAD
             // 1. Standardize handling for Validation errors (HTTP 422) according to the requirements
+=======
+<<<<<<< HEAD
+            // 1. Handle Validation errors (HTTP 422) separately according to requirements
+=======
+            // 1. Standardize Validation Exception (HTTP 422) response
+>>>>>>> main
+>>>>>>> main
             if ($e instanceof ValidationException) {
                 return response()->json([
                     'success' => false,
@@ -44,7 +60,15 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 422);
             }
 
+<<<<<<< HEAD
             // 2. Handle other HTTP status codes (401, 403, 404, 405...)
+=======
+<<<<<<< HEAD
+            // 2. Handle other HTTP Status Codes (401, 403, 404, 405...)
+=======
+            // 2. Standardize other HTTP Status Code responses (401, 403, 404, 405...)
+>>>>>>> main
+>>>>>>> main
             $status = $e instanceof HttpExceptionInterface
                 ? $e->getStatusCode()
                 : 500;

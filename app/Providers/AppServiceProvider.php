@@ -22,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
         // Bind Repository Interfaces with their Eloquent Implementations
         $this->app->bind(PatientRepositoryInterface::class, PatientRepository::class);
         $this->app->bind(SpecialtyRepositoryInterface::class, SpecialtyRepository::class);
-        $this->app->bind(DoctorRepositoryInterface::class, DoctorRepository::class);
+        $this->app->bind(DoctorRepositoryInterface::class, DoctorRepository::class); // <- Add binding for Doctor
         $this->app->bind(
             \App\Repositories\Contracts\ScheduleRepositoryInterface::class,
             \App\Repositories\Eloquent\ScheduleRepository::class

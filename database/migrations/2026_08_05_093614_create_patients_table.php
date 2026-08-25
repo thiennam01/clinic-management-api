@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             // Automatically generated patient code (e.g., BN-000001)
             $table->string('code')->unique(); 
+            $table->string('code')->unique(); // Auto-generated patient code (BN-000001)
             $table->string('full_name');
             // Gender options: male, female, other
             $table->string('gender'); 
@@ -26,12 +27,12 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            // Indexes for fast patient searching
+            // Index for fast patient search
             $table->index('full_name');
             $table->index('phone');
         });
 
-        // Add CHECK Constraint for gender to ensure data integrity in PostgreSQL
+        // Add CHECK Constraint for the gender column in PostgreSQL
         DB::statement("ALTER TABLE patients ADD CONSTRAINT check_patient_gender CHECK (gender IN ('male', 'female', 'other'))");
     }
 

@@ -22,11 +22,13 @@ class PatientController extends Controller
     {
         // Lấy tất cả query parameters từ request (bao gồm cả 'q' và 'per_page')
         $filters = $request->only(['q']);
+        // Get the dynamic per-page count from the request (default is 10)
         $perPage = (int) $request->get('per_page', 10);
         
         // Truyền $filters vào Service để xử lý tìm kiếm
         $patients = $this->patientService->getAllPatients($filters, $perPage);
 
+        // Pass $patients (Paginator) directly into BaseResourceCollection
         return new BaseResourceCollection($patients);
     }
 
