@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('permissions', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique(); // Yêu cầu: dạng CONTROLLER.ACTION (Ví dụ: USER.CREATE, POST.EDIT)
-            $table->string('description')->nullable(); // Mô tả quyền
+            $table->string('name')->unique(); // Requirement: CONTROLLER.ACTION format (Example: USER.CREATE, POST.EDIT)
+            $table->string('description')->nullable(); // Permission description
             $table->timestamps();
         });
     }

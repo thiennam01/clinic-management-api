@@ -19,7 +19,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
-            // Tránh việc 1 bác sĩ tạo trùng khung giờ trong cùng 1 ngày
+            // Prevent a doctor from creating overlapping time slots on the same day
             $table->unique(['doctor_id', 'date', 'start_time', 'end_time']);
             $table->index(['doctor_id', 'date']);
         });

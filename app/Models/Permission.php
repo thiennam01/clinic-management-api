@@ -15,7 +15,7 @@ class Permission extends Model
     ];
 
     /**
-     * Relationship: Permission thuộc về nhiều Roles
+     * Relationship: Permission belongs to many Roles
      */
     public function roles()
     {

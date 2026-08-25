@@ -12,7 +12,7 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         // -------------------------------------------------------------
-        // A. TẠO ĐẦY ĐỦ PERMISSIONS
+        // A. CREATE ALL PERMISSIONS
         // -------------------------------------------------------------
         $permissions = [
             // UserController

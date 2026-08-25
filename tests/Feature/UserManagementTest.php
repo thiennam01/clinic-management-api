@@ -16,7 +16,7 @@ class UserManagementTest extends TestCase
     {
         parent::setUp();
         
-        // Nếu bảng users chưa tồn tại (do DatabaseTransactions không chạy migrate), tự tạo nó
+        // If the users table does not exist (because DatabaseTransactions did not run migrations), create it automatically
         if (!Schema::hasTable('users')) {
             Schema::create('users', function (Blueprint $table) {
                 $table->id();
@@ -32,7 +32,7 @@ class UserManagementTest extends TestCase
 
     public function test_it_prevents_deactivating_the_last_admin()
     {
-        // Tạo 1 admin
+        // Create 1 admin
         $admin = User::create([
             'name' => 'Admin User',
             'email' => 'admin@test.com',
@@ -43,12 +43,12 @@ class UserManagementTest extends TestCase
 
         $this->actingAs($admin, 'sanctum');
 
-        // Gửi request khóa admin này
+        // Send request to deactivate this admin
         $response = $this->putJson("/api/v1/users/{$admin->id}", [
             'is_active' => false,
         ]);
 
-        // Kiểm tra lỗi 422
+        // Check for validation error 422
         $response->assertStatus(422)
                  ->assertJson([
                      'success' => false,

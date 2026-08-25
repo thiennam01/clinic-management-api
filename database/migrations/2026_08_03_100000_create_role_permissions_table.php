@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('permission_id')->constrained('permissions')->onDelete('cascade');
             $table->timestamps();
 
-            // Yêu cầu: UNIQUE(role_id, permission_id) để tránh cấp trùng quyền cho một role
+            // Requirement: UNIQUE(role_id, permission_id) to avoid granting duplicate permissions to a role
             $table->unique(['role_id', 'permission_id']);
         });
     }
