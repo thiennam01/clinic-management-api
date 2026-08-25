@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\SpecialtyController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\Api\ScheduleController;
 use App\Http\Controllers\Api\V1\AppointmentController;
+use App\Http\Controllers\Api\ExaminationController; // Added ExaminationController
 use App\Http\Controllers\PatientController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,12 +24,20 @@ Route::middleware(['auth:sanctum', 'permission'])->group(function () {
 
     Route::apiResource('patients', PatientController::class);
     
-    // Specialty API has been correctly routed to Api\V1\SpecialtyController
+    // Specialty API mapped to Api\V1\SpecialtyController
     Route::apiResource('specialties', SpecialtyController::class); 
 
-    // API Users has been correctly routed to Api\V1\UserController
+    // Users API mapped to Api\V1\UserController
     Route::apiResource('users', UserController::class);
     
     Route::apiResource('doctors', DoctorController::class);
     Route::apiResource('appointments', AppointmentController::class)->only(['index', 'store']);
+
+    // Examination API (Task T2.7)
+    Route::post('/examinations', [ExaminationController::class, 'store']);
+    // Retrieve all examinations
+    Route::get('/examinations', [ExaminationController::class, 'index']);
+
+    // Retrieve a specific examination by ID (e.g., /api/examinations/12)
+    Route::get('/examinations/{id}', [ExaminationController::class, 'show']);
 });
