@@ -48,7 +48,7 @@ class PrescriptionController extends Controller
                 'success' => false,
                 'message' => PrescriptionConstant::CREATE_FAILED,
                 'error' => $e->getMessage()
-            ], 500);
+            ], 422);
         }
     }
 
