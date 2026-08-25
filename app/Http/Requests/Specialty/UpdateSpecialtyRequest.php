@@ -8,7 +8,7 @@ class StoreSpecialtyRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // Phân quyền sẽ được xử lý ở Middleware hoặc Controller
+        return true; // Permissions will be handled in Middleware or Controller
     }
 
     public function rules(): array

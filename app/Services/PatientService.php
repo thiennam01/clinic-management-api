@@ -30,7 +30,7 @@ class PatientService
 
     public function createPatient(array $data): Patient
     {
-        // Tự động sinh mã code cho patient (VD: BN-000001)
+        // Automatically generate a patient code (e.g., BN-000001)
         $data['code'] = $this->patientRepository->generateNextCode();
 
         return $this->patientRepository->create($data);
@@ -40,7 +40,7 @@ class PatientService
     {
         $patient = $this->getPatientById($id);
 
-        // Bảo vệ: Không cho phép sửa mã code đã tự sinh
+        // Protection: Do not allow updating the auto-generated code
         unset($data['code']);
 
         return $this->patientRepository->update($patient, $data);

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    // Giả định role_id của ADMIN là 1 (hoặc điều chỉnh theo DB của dự án)
+    // Assume role_id of ADMIN is 1 (or adjust according to the project's DB)
     private const ADMIN_ROLE_ID = 1;
 
     public function index(Request $request): JsonResponse
@@ -60,7 +60,7 @@ class UserController extends Controller
     {
         $data = $request->validated();
 
-        // --- BUSINESS LOGIC: BẢO VỆ ADMIN CUỐI CÙNG ---
+        // --- BUSINESS LOGIC: PROTECT THE LAST ADMIN ---
         $isCurrentAdmin = ($user->role_id === self::ADMIN_ROLE_ID);
         
         if ($isCurrentAdmin) {
@@ -71,7 +71,7 @@ class UserController extends Controller
             $isDeactivating = ($newIsActive === false || $newIsActive === 0);
 
             if ($isChangingRole || $isDeactivating) {
-                // Đếm xem còn bao nhiêu Admin khác đang active trong hệ thống (ngoài user hiện tại ra)
+                // Count how many other active Admins remain in the system (excluding the current user)
                 $otherActiveAdminsCount = User::where('role_id', self::ADMIN_ROLE_ID)
                     ->where(function ($query) {
                         $query->where('is_active', true)
@@ -105,7 +105,7 @@ class UserController extends Controller
 
     public function destroy(User $user): JsonResponse
     {
-        // Kiểm tra chặn luôn nếu xóa Admin cuối cùng (nếu có API delete)
+        // Check and block immediately if deleting the last Admin (if delete API exists)
         if ($user->role_id === self::ADMIN_ROLE_ID) {
             $otherActiveAdminsCount = User::where('role_id', self::ADMIN_ROLE_ID)
                 ->where('id', '!=', $user->id)

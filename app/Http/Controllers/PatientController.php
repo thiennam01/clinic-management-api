@@ -20,11 +20,11 @@ class PatientController extends Controller
 
     public function index(Request $request)
     {
-        // Lấy số lượng trang động từ request (mặc định là 10)
+        // Get the dynamic per-page count from the request (default is 10)
         $perPage = (int) $request->get('per_page', 10);
         $patients = $this->patientService->getAllPatients($perPage);
 
-        // Truyền thẳng $patients (Paginator) vào BaseResourceCollection
+        // Pass $patients (Paginator) directly into BaseResourceCollection
         return new BaseResourceCollection($patients);
     }
 

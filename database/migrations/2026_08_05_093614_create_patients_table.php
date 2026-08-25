@@ -11,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique(); // Mã bệnh nhân tự sinh (BN-000001)
+            $table->string('code')->unique(); // Auto-generated patient code (BN-000001)
             $table->string('full_name');
             $table->string('gender'); // male, female, other
             $table->date('date_of_birth');
@@ -21,12 +21,12 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            // Index phục vụ tìm kiếm nhanh bệnh nhân
+            // Index for fast patient search
             $table->index('full_name');
             $table->index('phone');
         });
 
-        // Bổ sung CHECK Constraint cho cột gender chuẩn PostgreSQL
+        // Add CHECK Constraint for the gender column in PostgreSQL
         DB::statement("ALTER TABLE patients ADD CONSTRAINT check_patient_gender CHECK (gender IN ('male', 'female', 'other'))");
     }
 

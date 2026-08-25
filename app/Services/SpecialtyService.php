@@ -39,7 +39,7 @@ class SpecialtyService
     {
         $specialty = $this->getSpecialtyById($id);
 
-        unset($data['code']); // Không cho phép sửa mã chuyên khoa
+        unset($data['code']); // Do not allow updating the specialty code
 
         return $this->specialtyRepository->update($specialty, $data);
     }
