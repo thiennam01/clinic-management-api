@@ -9,7 +9,7 @@ class UpdateSpecialtyRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return true; // Permissions will be handled in Middleware or Controller
     }
 
     public function rules(): array

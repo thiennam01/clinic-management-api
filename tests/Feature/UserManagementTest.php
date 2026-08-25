@@ -22,7 +22,7 @@ class UserManagementTest extends TestCase
         
         $permission = Permission::create([
             'name' => 'USERS.UPDATE',
-            'display_name' => 'Update User' // Add display_name if the permissions table requires it, otherwise it can be omitted
+            'display_name' => 'Update User'
         ]);
         
         // Assign permissions to the role
@@ -39,12 +39,15 @@ class UserManagementTest extends TestCase
 
         $this->actingAs($admin, 'sanctum');
 
-        // 3. Send request to deactivate the admin user
-        $response = $this->putJson("/api/users/{$admin->id}", [
+        // 3. Send request to deactivate the admin user (sửa chuẩn theo api v1 của dự án)
+        $response = $this->putJson("/api/v1/users/{$admin->id}", [
             'is_active' => false,
         ]);
 
         // 4. Verify the system blocks the action and returns status 422
-        $response->assertStatus(422);
+        $response->assertStatus(422)
+                 ->assertJson([
+                     'success' => false,
+                 ]);
     }
 }

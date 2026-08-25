@@ -26,8 +26,8 @@ class AppointmentService
         if (!$schedule) {
             throw new Exception(AppointmentConstant::MSG_SCHEDULE_NOT_FOUND, 404);
         }
-        
-        // 2. Check if the schedule has reached its maximum patient capacity
+
+        // 2. Check if the schedule has available slots (max_patients)
         $currentBookings = $this->appointmentRepository->countBySchedule($data['schedule_id']);
         if ($currentBookings >= $schedule->max_patients) {
             throw new Exception(AppointmentConstant::MSG_SCHEDULE_FULL, 422);

@@ -36,7 +36,7 @@ class AppointmentController extends Controller
         // Retrieve validated data from StoreAppointmentRequest
         $validated = $request->validated();
         
-        // Automatically assign the authenticated user as the patient
+        // Automatically assign the patient as the currently logged-in user
         $validated['patient_id'] = $request->user()->id;
 
         try {
