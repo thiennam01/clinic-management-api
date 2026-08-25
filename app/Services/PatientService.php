@@ -12,22 +12,34 @@ class PatientService
         protected PatientRepositoryInterface $patientRepository
     ) {}
 
-    public function getAllPatients(int $perPage = 10): LengthAwarePaginator
+    /**
+     * Get paginated list of patients with optional filters.
+     */
+    public function getAllPatients(array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
-        return $this->patientRepository->paginate($perPage);
+        return $this->patientRepository->paginate($filters, $perPage);
     }
 
-    public function getPatientById(int $id): Patient
+    /**
+     * Find a specific patient by ID, throw 404 if not found.
+     */
+    public function getPatientById($id): Patient
     {
+        // Cast ID to integer to ensure data type safety
+        $id = (int) $id;
+        
         $patient = $this->patientRepository->findById($id);
 
         if (!$patient) {
-            abort(404, 'Không tìm thấy thông tin bệnh nhân');
+            abort(404, 'Patient not found');
         }
 
         return $patient;
     }
 
+    /**
+     * Create a new patient record with an auto-generated code.
+     */
     public function createPatient(array $data): Patient
     {
         // Automatically generate a patient code (e.g., BN-000001)
@@ -36,8 +48,12 @@ class PatientService
         return $this->patientRepository->create($data);
     }
 
-    public function updatePatient(int $id, array $data): Patient
+    /**
+     * Update an existing patient's information.
+     */
+    public function updatePatient($id, array $data): Patient
     {
+        $id = (int) $id;
         $patient = $this->getPatientById($id);
 
         // Protection: Do not allow updating the auto-generated code
@@ -46,9 +62,14 @@ class PatientService
         return $this->patientRepository->update($patient, $data);
     }
 
-    public function deletePatient(int $id): bool
+    /**
+     * Delete a patient record.
+     */
+    public function deletePatient($id): bool
     {
+        $id = (int) $id;
         $patient = $this->getPatientById($id);
+        
         return $this->patientRepository->delete($patient);
     }
 }

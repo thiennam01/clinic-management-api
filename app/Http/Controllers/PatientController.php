@@ -20,9 +20,13 @@ class PatientController extends Controller
 
     public function index(Request $request)
     {
+        // Lấy tất cả query parameters từ request (bao gồm cả 'q' và 'per_page')
+        $filters = $request->only(['q']);
         // Get the dynamic per-page count from the request (default is 10)
         $perPage = (int) $request->get('per_page', 10);
-        $patients = $this->patientService->getAllPatients($perPage);
+        
+        // Truyền $filters vào Service để xử lý tìm kiếm
+        $patients = $this->patientService->getAllPatients($filters, $perPage);
 
         // Pass $patients (Paginator) directly into BaseResourceCollection
         return new BaseResourceCollection($patients);
@@ -35,11 +39,11 @@ class PatientController extends Controller
         return $this->successResponse(
             new PatientResource($patient),
             'Tạo hồ sơ bệnh nhân thành công',
-            201
+            201 
         );
     }
 
-    public function show(int $id)
+    public function show($id)
     {
         $patient = $this->patientService->getPatientById($id);
 
