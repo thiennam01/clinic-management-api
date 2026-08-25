@@ -7,9 +7,9 @@ use Illuminate\Http\JsonResponse;
 trait ApiResponse
 {
     /**
-     * Trả về Response thành công chuẩn JSON Envelope
+     * Return a standardized success JSON response.
      */
-    public function successResponse($data = null, string $message = 'Thành công', int $code = 200): JsonResponse
+    public function successResponse($data = null, string $message = 'Success', int $code = 200): JsonResponse
     {
         $response = [
             'success' => true,
@@ -24,9 +24,9 @@ trait ApiResponse
     }
 
     /**
-     * Trả về Response thất bại
+     * Return a standardized error JSON response.
      */
-    public function errorResponse(string $message = 'Thất bại', int $code = 400, $errors = null): JsonResponse
+    public function errorResponse(string $message = 'Failure', int $code = 400, $errors = null): JsonResponse
     {
         $response = [
             'success' => false,
