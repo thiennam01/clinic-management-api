@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Constants\DoctorConstant;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Doctor\StoreDoctorRequest;
 use App\Http\Requests\Doctor\UpdateDoctorRequest;
@@ -11,19 +12,19 @@ use Illuminate\Http\JsonResponse;
 
 class DoctorController extends Controller
 {
-    // Danh sách bác sĩ (kèm quan hệ user và specialty)
+    // Retrieve paginated list of doctors (with user and specialty relations)
     public function index(): JsonResponse
     {
         $doctors = Doctor::with(['user', 'specialty'])->latest()->paginate(10);
 
         return response()->json([
             'success' => true,
-            'message' => 'Lấy danh sách bác sĩ thành công',
+            'message' => DoctorConstant::MSG_GET_LIST_SUCCESS,
             'data' => DoctorResource::collection($doctors)->response()->getData(true)
         ]);
     }
 
-    // Tạo mới hồ sơ bác sĩ
+    // Create a new doctor profile
     public function store(StoreDoctorRequest $request): JsonResponse
     {
         $doctor = Doctor::create($request->validated());
@@ -31,24 +32,24 @@ class DoctorController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Tạo hồ sơ bác sĩ thành công',
+            'message' => DoctorConstant::MSG_CREATE_SUCCESS,
             'data' => new DoctorResource($doctor)
         ], 201);
     }
 
-    // Xem chi tiết 1 bác sĩ
+    // Retrieve details of a specific doctor
     public function show(Doctor $doctor): JsonResponse
     {
         $doctor->load(['user', 'specialty']);
 
         return response()->json([
             'success' => true,
-            'message' => 'Lấy thông tin bác sĩ thành công',
+            'message' => DoctorConstant::MSG_GET_DETAIL_SUCCESS,
             'data' => new DoctorResource($doctor)
         ]);
     }
 
-    // Cập nhật hồ sơ bác sĩ
+    // Update an existing doctor profile
     public function update(UpdateDoctorRequest $request, Doctor $doctor): JsonResponse
     {
         $doctor->update($request->validated());
@@ -56,19 +57,19 @@ class DoctorController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Cập nhật hồ sơ bác sĩ thành công',
+            'message' => DoctorConstant::MSG_UPDATE_SUCCESS,
             'data' => new DoctorResource($doctor)
         ]);
     }
 
-    // Xóa bác sĩ (Soft Delete)
+    // Delete a doctor profile (Soft Delete)
     public function destroy(Doctor $doctor): JsonResponse
     {
         $doctor->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Xóa hồ sơ bác sĩ thành công'
+            'message' => DoctorConstant::MSG_DELETE_SUCCESS
         ]);
     }
 }

@@ -3,10 +3,10 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\V1\UserController; 
 use App\Http\Controllers\Api\V1\SpecialtyController; 
-use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\Api\V1\DoctorController;
 use App\Http\Controllers\Api\ScheduleController;
 use App\Http\Controllers\Api\V1\AppointmentController;
-use App\Http\Controllers\Api\ExaminationController; // Added ExaminationController
+use App\Http\Controllers\Api\V1\ExaminationController;
 use App\Http\Controllers\PatientController;
 use Illuminate\Support\Facades\Route;
 

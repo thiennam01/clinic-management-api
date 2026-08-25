@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Doctor;
 
+use App\Constants\DoctorConstant;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreDoctorRequest extends FormRequest
 {
@@ -21,11 +21,11 @@ class StoreDoctorRequest extends FormRequest
                 'integer',
                 'exists:users,id',
                 'unique:doctors,user_id',
-                // Custom rule kiểm tra user phải có role là DOCTOR (giả sử role name hoặc ID của DOCTOR)
+                // Custom validation rule to ensure the selected user has the DOCTOR role
                 function ($attribute, $value, $fail) {
                     $user = User::with('role')->find($value);
-                    if ($user && $user->role && $user->role->name !== 'DOCTOR') { // Hoặc check theo ID nếu hệ thống dùng ID
-                        $fail('Người dùng được chọn không phải là Bác sĩ (Doctor).');
+                    if ($user && $user->role && $user->role->name !== 'DOCTOR') {
+                        $fail(DoctorConstant::MSG_USER_NOT_DOCTOR);
                     }
                 },
             ],

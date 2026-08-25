@@ -2,61 +2,48 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Constants\AuthConstant;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Services\AuthService;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    
-    private const MSG_INVALID_CREDENTIALS = 'Email hoặc mật khẩu không chính xác.';
-    private const MSG_LOGIN_SUCCESS = 'Đăng nhập thành công';
-    private const MSG_LOGOUT_SUCCESS = 'Đăng xuất thành công';
+    use ApiResponse;
+
+    public function __construct(
+        protected AuthService $authService
+    ) {}
 
     /**
-     * Log in and generate a Bearer Token for the User
+     * Authenticate user and generate a Bearer Token.
      */
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required|string',
+            'email'    => ['required', 'email'],
+            'password' => ['required', 'string'],
         ]);
 
-        $user = User::where('email', $credentials['email'])->first();
+        $result = $this->authService->login($credentials);
 
-        // Check if the User exists and the password is correct
-        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
-            return response()->json([
-                'message' => self::MSG_INVALID_CREDENTIALS
-            ], 401);
-        }
-
-        // Create token via Sanctum
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message'      => self::MSG_LOGIN_SUCCESS,
-            'access_token' => $token,
-            'token_type'   => 'Bearer',
-            'user'         => [
-                'id'    => $user->id,
-                'name'  => $user->name,
-                'email' => $user->email,
-                'role'  => $user->role ? $user->role->name : null,
-            ],
-        ], 200);
+        return $this->successResponse(
+            $result,
+            AuthConstant::MSG_LOGIN_SUCCESS ?? 'Login successful'
+        );
     }
 
     /**
-     * Log out and revoke the current Token
+     * Revoke the current user's token (Logout).
      */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $this->authService->logout($request->user());
 
-        return response()->json([
-            'message' => self::MSG_LOGOUT_SUCCESS
-        ], 200);
+        return $this->successResponse(
+            null,
+            AuthConstant::MSG_LOGOUT_SUCCESS ?? 'Logout successful'
+        );
     }
 }

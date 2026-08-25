@@ -3,52 +3,48 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
+use App\Models\Role;
+use App\Models\Permission;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class UserManagementTest extends TestCase
 {
-    use DatabaseTransactions;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        
-        // If the users table does not exist (because DatabaseTransactions did not run migrations), create it automatically
-        if (!Schema::hasTable('users')) {
-            Schema::create('users', function (Blueprint $table) {
-                $table->id();
-                $table->string('name');
-                $table->string('email')->unique();
-                $table->string('password');
-                $table->unsignedInteger('role_id')->default(1);
-                $table->boolean('is_active')->default(true);
-                $table->timestamps();
-            });
-        }
-    }
+    use RefreshDatabase;
 
     public function test_it_prevents_deactivating_the_last_admin()
     {
-        // Create 1 admin
+        // 1. Create a Role with full 'name' and 'display_name'
+        $role = Role::create([
+            'name' => 'Admin',
+            'display_name' => 'Administrator'
+        ]);
+        
+        $permission = Permission::create([
+            'name' => 'USERS.UPDATE',
+            'display_name' => 'Update User'
+        ]);
+        
+        // Assign permissions to the role
+        $role->permissions()->attach($permission->id);
+
+        // 2. Create a single admin associated with the role above
         $admin = User::create([
             'name' => 'Admin User',
             'email' => 'admin@test.com',
             'password' => bcrypt('password'),
-            'role_id' => 1,
+            'role_id' => $role->id,
             'is_active' => true,
         ]);
 
         $this->actingAs($admin, 'sanctum');
 
-        // Send request to deactivate this admin
+        // 3. Send request to deactivate the admin user (sửa chuẩn theo api v1 của dự án)
         $response = $this->putJson("/api/v1/users/{$admin->id}", [
             'is_active' => false,
         ]);
 
-        // Check for validation error 422
+        // 4. Verify the system blocks the action and returns status 422
         $response->assertStatus(422)
                  ->assertJson([
                      'success' => false,

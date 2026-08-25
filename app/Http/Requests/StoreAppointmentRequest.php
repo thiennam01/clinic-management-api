@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Constants\AppointmentConstant;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreAppointmentRequest extends FormRequest
@@ -23,11 +24,11 @@ class StoreAppointmentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'schedule_id.required' => 'Vui lòng chọn lịch làm việc.',
-            'schedule_id.exists' => 'Lịch làm việc không tồn tại.',
-            'appointment_date.required' => 'Vui lòng chọn ngày giờ khám.',
-            'appointment_date.date' => 'Ngày giờ khám không đúng định dạng.',
-            'appointment_date.after_or_equal' => 'Ngày khám phải từ hôm nay trở đi.',
+            'schedule_id.required' => AppointmentConstant::MSG_SCHEDULE_REQUIRED,
+            'schedule_id.exists' => AppointmentConstant::MSG_SCHEDULE_EXISTS,
+            'appointment_date.required' => AppointmentConstant::MSG_DATE_REQUIRED,
+            'appointment_date.date' => AppointmentConstant::MSG_DATE_INVALID,
+            'appointment_date.after_or_equal' => AppointmentConstant::MSG_DATE_AFTER_OR_EQUAL,
         ];
     }
 }
