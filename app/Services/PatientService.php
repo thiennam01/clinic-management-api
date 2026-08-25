@@ -43,7 +43,7 @@ class PatientService
      */
     public function createPatient(array $data): Patient
     {
-        // Automatically generate a unique patient code (e.g., BN-000001)
+        // Automatically generate a patient code (e.g., BN-000001)
         $data['code'] = $this->patientRepository->generateNextCode();
 
         return $this->patientRepository->create($data);
@@ -57,7 +57,7 @@ class PatientService
         $id = (int) $id;
         $patient = $this->getPatientById($id);
 
-        // Security: Prevent updating the auto-generated patient code
+        // Protection: Do not allow updating the auto-generated code
         unset($data['code']);
 
         return $this->patientRepository->update($patient, $data);

@@ -10,9 +10,9 @@ use App\Repositories\Contracts\SpecialtyRepositoryInterface;
 use App\Repositories\Eloquent\SpecialtyRepository;
 use App\Repositories\Contracts\ExaminationRepositoryInterface; 
 use App\Repositories\Eloquent\ExaminationRepository;         
-use Illuminate\Support\ServiceProvider;
 use App\Repositories\Contracts\MedicineRepositoryInterface;
 use App\Repositories\Eloquent\MedicineRepository;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {

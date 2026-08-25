@@ -23,28 +23,28 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
 
-        // Always render JSON for API requests instead of HTML
+        // API always returns JSON instead of HTML
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
 
-        // Standardize exception responses for API
+        // Standardize Exception response for API
         $exceptions->render(function (\Throwable $e, Request $request) {
 
             if (! $request->is('api/*')) {
                 return null;
             }
 
-            // 1. Handle Validation Exception (HTTP 422)
+            // 1. Standardize Validation Exception (HTTP 422) response
             if ($e instanceof ValidationException) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'The given data was invalid.',
+                    'message' => 'Dữ liệu không hợp lệ',
                     'errors'  => $e->errors(),
                 ], 422);
             }
 
-            // 2. Handle other HTTP status codes (401, 403, 404, 405...)
+            // 2. Standardize other HTTP Status Code responses (401, 403, 404, 405...)
             $status = $e instanceof HttpExceptionInterface
                 ? $e->getStatusCode()
                 : 500;

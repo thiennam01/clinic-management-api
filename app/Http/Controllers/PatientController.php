@@ -23,11 +23,13 @@ class PatientController extends Controller
     {
         // Retrieve all query parameters from request (including 'q' and 'per_page')
         $filters = $request->only(['q']);
+        // Get the dynamic per-page count from the request (default is 10)
         $perPage = (int) $request->get('per_page', 10);
         
         // Pass $filters to the Service to handle searching/filtering
         $patients = $this->patientService->getAllPatients($filters, $perPage);
 
+        // Pass $patients (Paginator) directly into BaseResourceCollection
         return new BaseResourceCollection($patients);
     }
 

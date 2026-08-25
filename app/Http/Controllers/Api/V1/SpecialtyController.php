@@ -15,7 +15,14 @@ use Illuminate\Http\Request;
 
 class SpecialtyController extends Controller
 {
+<<<<<<< HEAD
     use ApiResponse;
+=======
+    // List of specialties (paginated or fetch all)
+    public function index(): JsonResponse
+    {
+        $specialties = Specialty::latest()->paginate(10);
+>>>>>>> main
 
     public function __construct(
         protected SpecialtyService $specialtyService
@@ -30,8 +37,13 @@ class SpecialtyController extends Controller
         return new BaseResourceCollection($specialties);
     }
 
+<<<<<<< HEAD
     // Create a new specialty
     public function store(StoreSpecialtyRequest $request)
+=======
+    // Create new specialty
+    public function store(StoreSpecialtyRequest $request): JsonResponse
+>>>>>>> main
     {
         $specialty = $this->specialtyService->createSpecialty($request->validated());
 
@@ -42,8 +54,8 @@ class SpecialtyController extends Controller
         );
     }
 
-    // Show specialty details
-    public function show(Specialty $specialty)
+    // View details of a specialty
+    public function show(Specialty $specialty): JsonResponse
     {
         $specialtyData = $this->specialtyService->getSpecialtyById($specialty);
 
@@ -53,8 +65,8 @@ class SpecialtyController extends Controller
         );
     }
 
-    // Update specialty information
-    public function update(UpdateSpecialtyRequest $request, Specialty $specialty)
+    // Update a specialty
+    public function update(UpdateSpecialtyRequest $request, Specialty $specialty): JsonResponse
     {
         $updatedSpecialty = $this->specialtyService->updateSpecialty($specialty, $request->validated());
 
@@ -65,7 +77,7 @@ class SpecialtyController extends Controller
     }
 
     // Delete a specialty (Soft Delete)
-    public function destroy(Specialty $specialty)
+    public function destroy(Specialty $specialty): JsonResponse
     {
         $this->specialtyService->deleteSpecialty($specialty);
 

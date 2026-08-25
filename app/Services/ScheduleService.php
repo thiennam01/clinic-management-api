@@ -25,7 +25,7 @@ class ScheduleService
      */
     public function createSchedule(array $data)
     {
-        // Check if the doctor already has a conflicting schedule during this timeframe
+        // Check if the schedule overlaps with another shift for the same doctor
         if ($this->scheduleRepository->hasConflict($data['doctor_id'], $data['date'], $data['start_time'], $data['end_time'])) {
             throw new Exception(ScheduleConstant::MSG_CONFLICT, 422);
         }
