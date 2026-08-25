@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\PrescriptionController;
 use App\Http\Controllers\PatientController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\InvoiceController;
+use App\Http\Controllers\Api\V1\PaymentController;
 
 // Public authentication route
 Route::post('login', [AuthController::class, 'login']);
@@ -62,5 +63,8 @@ Route::middleware(['auth:sanctum', 'permission'])->group(function () {
     Route::post('/invoices', [InvoiceController::class, 'store']);
     Route::put('/invoices/{invoice}', [InvoiceController::class, 'update']);
     Route::get('/invoices/{invoice}', [InvoiceController::class, 'show']);
+
+    Route::post('/invoices/{invoice}/payments',[PaymentController::class, 'store']);
+    Route::post('/payments/{payment}/capture', [PaymentController::class, 'capture']);
 });
 
