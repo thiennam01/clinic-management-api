@@ -4,24 +4,41 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\Examination;
 use App\Repositories\Contracts\ExaminationRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
 
 class ExaminationRepository implements ExaminationRepositoryInterface
 {
     /**
      * Get all examination records.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function all()
+    public function all(): Collection
     {
-        return Examination::all();
+        return Examination::with([
+            'appointment',
+            'patient',
+            'doctor.user',
+            'doctor.specialty',
+        ])
+            ->latest('examined_at')
+            ->get();
     }
 
     /**
-     * Create a new examination record.
-     *
-     * @param array $data
-     * @return Examination
+     * Find an examination by ID.
+     */
+    public function find(int $id): ?Examination
+    {
+        return Examination::with([
+            'appointment',
+            'patient',
+            'doctor.user',
+            'doctor.specialty',
+            'prescription',
+        ])->find($id);
+    }
+
+    /**
+     * Create a new examination.
      */
     public function create(array $data): Examination
     {
@@ -29,13 +46,13 @@ class ExaminationRepository implements ExaminationRepositoryInterface
     }
 
     /**
-     * Find an examination by its appointment ID.
-     *
-     * @param int $appointmentId
-     * @return Examination|null
+     * Find an examination by appointment ID.
      */
     public function findByAppointmentId(int $appointmentId): ?Examination
     {
-        return Examination::where('appointment_id', $appointmentId)->first();
+        return Examination::where(
+            'appointment_id',
+            $appointmentId
+        )->first();
     }
 }

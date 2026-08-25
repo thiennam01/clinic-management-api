@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-
 class Examination extends Model
 {
     use HasFactory;
@@ -33,6 +32,13 @@ class Examination extends Model
     ];
 
     /**
+     * Cast attributes.
+     */
+    protected $casts = [
+        'examined_at' => 'datetime',
+    ];
+
+    /**
      * Get the appointment associated with the examination.
      */
     public function appointment(): BelongsTo
@@ -45,7 +51,7 @@ class Examination extends Model
      */
     public function doctor(): BelongsTo
     {
-        return $this->belongsTo(Doctor::class); // Adjust model name if your project uses User for doctors
+        return $this->belongsTo(Doctor::class);
     }
 
     /**
@@ -53,14 +59,14 @@ class Examination extends Model
      */
     public function patient(): BelongsTo
     {
-        return $this->belongsTo(Patient::class); // Adjust model name if your project uses User for patients
+        return $this->belongsTo(Patient::class);
     }
 
     /**
-     * 1-to-1 or 1-to-many relationship to the prescriptions table depending on your database design
+     * Get the prescription associated with the examination.
      */
     public function prescription()
     {
-        return $this->hasOne(Prescription::class); 
+        return $this->hasOne(Prescription::class);
     }
 }

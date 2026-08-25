@@ -13,4 +13,10 @@ class PatientConstant
 
     public const MSG_NOT_FOUND = 'Patient does not exist.';
     public const MSG_USER_NOT_PATIENT = 'The selected user is not a Patient.';
+
+    public const GENDER_MALE = 1;
+    public const GENDER_FEMALE = 0;
+    
+    public const CODE_PREFIX = 'BN-';
+    public const PAGINATE_LIMIT = 10;
 }

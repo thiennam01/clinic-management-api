@@ -11,30 +11,37 @@ class DoctorRepository implements DoctorRepositoryInterface
     public function getAllPaginated(int $perPage = 10): LengthAwarePaginator
     {
         return Doctor::with(['user', 'specialty'])
-            ->orderBy('id', 'desc')
+            ->latest('id')
             ->paginate($perPage);
     }
 
     public function findById(int $id): ?Doctor
     {
-        return Doctor::with(['user', 'specialty'])->findOrFail($id);
+        return Doctor::with(['user', 'specialty'])
+            ->find($id);
     }
 
     public function create(array $data): Doctor
     {
-        return Doctor::create($data);
+        $doctor = Doctor::create($data);
+
+        return $doctor->load(['user', 'specialty']);
     }
 
     public function update(int $id, array $data): Doctor
     {
         $doctor = Doctor::findOrFail($id);
+
         $doctor->update($data);
-        return $doctor->load(['user', 'specialty']);
+
+        return $doctor->refresh()
+            ->load(['user', 'specialty']);
     }
 
     public function delete(int $id): bool
     {
         $doctor = Doctor::findOrFail($id);
-        return $doctor->delete();
+
+        return (bool) $doctor->delete();
     }
 }

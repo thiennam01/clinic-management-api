@@ -7,69 +7,84 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Doctor\StoreDoctorRequest;
 use App\Http\Requests\Doctor\UpdateDoctorRequest;
 use App\Http\Resources\DoctorResource;
-use App\Models\Doctor;
-use Illuminate\Http\JsonResponse;
+use App\Services\DoctorService;
+use App\Traits\ApiResponse;
+use Illuminate\Http\Request;
 
 class DoctorController extends Controller
 {
-    // Retrieve paginated list of doctors (with user and specialty relations)
-    public function index(): JsonResponse
+    use ApiResponse;
+
+    public function __construct(
+        protected DoctorService $doctorService
+    ) {}
+
+    public function index(Request $request)
     {
-        $doctors = Doctor::with(['user', 'specialty'])->latest()->paginate(10);
+        $perPage = (int) $request->get('per_page', 10);
+
+        $doctors = $this->doctorService->getAllDoctors($perPage);
 
         return response()->json([
             'success' => true,
             'message' => DoctorConstant::MSG_GET_LIST_SUCCESS,
-            'data' => DoctorResource::collection($doctors)->response()->getData(true)
+            'data' => DoctorResource::collection($doctors),
+            'meta' => [
+                'current_page' => $doctors->currentPage(),
+                'last_page' => $doctors->lastPage(),
+                'per_page' => $doctors->perPage(),
+                'total' => $doctors->total(),
+            ],
         ]);
     }
 
-    // Create a new doctor profile
-    public function store(StoreDoctorRequest $request): JsonResponse
+    public function store(StoreDoctorRequest $request)
     {
-        $doctor = Doctor::create($request->validated());
+        $doctor = $this->doctorService->createDoctor(
+            $request->validated()
+        );
+
         $doctor->load(['user', 'specialty']);
 
-        return response()->json([
-            'success' => true,
-            'message' => DoctorConstant::MSG_CREATE_SUCCESS,
-            'data' => new DoctorResource($doctor)
-        ], 201);
+        return $this->successResponse(
+            new DoctorResource($doctor),
+            DoctorConstant::MSG_CREATE_SUCCESS,
+            201
+        );
     }
 
-    // Retrieve details of a specific doctor
-    public function show(Doctor $doctor): JsonResponse
+    public function show(int $doctor)
     {
-        $doctor->load(['user', 'specialty']);
+        $doctorData = $this->doctorService->getDoctorById($doctor);
 
-        return response()->json([
-            'success' => true,
-            'message' => DoctorConstant::MSG_GET_DETAIL_SUCCESS,
-            'data' => new DoctorResource($doctor)
-        ]);
+        return $this->successResponse(
+            new DoctorResource($doctorData),
+            DoctorConstant::MSG_GET_DETAIL_SUCCESS
+        );
     }
 
-    // Update an existing doctor profile
-    public function update(UpdateDoctorRequest $request, Doctor $doctor): JsonResponse
-    {
-        $doctor->update($request->validated());
-        $doctor->load(['user', 'specialty']);
+    public function update(
+        UpdateDoctorRequest $request,
+        int $doctor
+    ) {
+        $doctorData = $this->doctorService->updateDoctor(
+            $doctor,
+            $request->validated()
+        );
 
-        return response()->json([
-            'success' => true,
-            'message' => DoctorConstant::MSG_UPDATE_SUCCESS,
-            'data' => new DoctorResource($doctor)
-        ]);
+        return $this->successResponse(
+            new DoctorResource($doctorData),
+            DoctorConstant::MSG_UPDATE_SUCCESS
+        );
     }
 
-    // Delete a doctor profile (Soft Delete)
-    public function destroy(Doctor $doctor): JsonResponse
+    public function destroy(int $doctor)
     {
-        $doctor->delete();
+        $this->doctorService->deleteDoctor($doctor);
 
-        return response()->json([
-            'success' => true,
-            'message' => DoctorConstant::MSG_DELETE_SUCCESS
-        ]);
+        return $this->successResponse(
+            null,
+            DoctorConstant::MSG_DELETE_SUCCESS
+        );
     }
 }

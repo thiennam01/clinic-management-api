@@ -8,18 +8,22 @@ use Illuminate\Database\Eloquent\Collection;
 interface ExaminationRepositoryInterface
 {
     /**
-     * Create a new examination record.
-     *
-     * @param array $data
-     * @return Examination
+     * Get all examination records.
+     */
+    public function all(): Collection;
+
+    /**
+     * Find an examination by ID.
+     */
+    public function find(int $id): ?Examination;
+
+    /**
+     * Create a new examination.
      */
     public function create(array $data): Examination;
 
     /**
-     * Find an examination by its appointment ID to enforce the unique constraint rule.
-     *
-     * @param int $appointmentId
-     * @return Examination|null
+     * Find an examination by appointment ID.
      */
     public function findByAppointmentId(int $appointmentId): ?Examination;
-}   
+}

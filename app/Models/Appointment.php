@@ -17,13 +17,22 @@ class Appointment extends Model
         'notes',
     ];
 
+    protected $casts = [
+        'appointment_date' => 'datetime',
+    ];
+
     public function patient()
     {
-        return $this->belongsTo(User::class, 'patient_id');
+        return $this->belongsTo(Patient::class, 'patient_id');
     }
 
     public function schedule()
-    {
+    {   
         return $this->belongsTo(Schedule::class);
     }
+
+    public function examination()
+    {
+        return $this->hasOne(Examination::class);
+    }   
 }

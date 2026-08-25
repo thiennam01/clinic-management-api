@@ -8,21 +8,52 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class PatientRepository implements PatientRepositoryInterface
 {
-    public function paginate(array $filters = [], int $perPage = 10): LengthAwarePaginator
-    {
+    public function paginate(
+        array $filters = [],
+        int $perPage = 10
+    ): LengthAwarePaginator {
         $query = Patient::query();
 
-        // Xử lý tìm kiếm theo q (tên, SĐT, code)
+        /*
+        |--------------------------------------------------------------------------
+        | Search
+        |--------------------------------------------------------------------------
+        | Search by:
+        | - Patient code
+        | - Full name
+        | - Phone number
+        */
         if (!empty($filters['q'])) {
-            $keyword = $filters['q'];
-            $query->where(function ($q) use ($keyword) {
-                $q->where('full_name', 'like', "%{$keyword}%")
-                  ->orWhere('phone', 'like', "%{$keyword}%")
-                  ->orWhere('code', 'like', "%{$keyword}%");
+            $keyword = trim($filters['q']);
+
+            $query->where(function ($query) use ($keyword) {
+                $query->where('full_name', 'ilike', "%{$keyword}%")
+                    ->orWhere('phone', 'ilike', "%{$keyword}%")
+                    ->orWhere('code', 'ilike', "%{$keyword}%");
             });
         }
 
-        return $query->latest('id')->paginate($perPage);
+        /*
+        |--------------------------------------------------------------------------
+        | Gender filter
+        |--------------------------------------------------------------------------
+        */
+        if (!empty($filters['gender'])) {
+            $query->where(
+                'gender',
+                $filters['gender']
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Pagination
+        |--------------------------------------------------------------------------
+        */
+        return $query
+            ->latest('id')
+            ->paginate($perPage)
+            ->withQueryString();
     }
 
     public function findById(int $id): ?Patient
@@ -35,25 +66,41 @@ class PatientRepository implements PatientRepositoryInterface
         return Patient::create($data);
     }
 
-    public function update(Patient $patient, array $data): Patient
-    {
+    public function update(
+        Patient $patient,
+        array $data
+    ): Patient {
         $patient->update($data);
-        return $patient;
+
+        return $patient->refresh();
     }
 
     public function delete(Patient $patient): bool
     {
-        return $patient->delete();
+        return (bool) $patient->delete();
     }
 
     /**
-     * Tự động sinh mã bệnh nhân dạng BN-000001
+     * Automatically generate patient code:
+     * BN-000001
+     * BN-000002
+     * ...
      */
     public function generateNextCode(): string
     {
-        $lastPatient = Patient::withTrashed()->latest('id')->first();
-        $nextId = $lastPatient ? $lastPatient->id + 1 : 1;
+        $lastPatient = Patient::withTrashed()
+            ->latest('id')
+            ->first();
 
-        return 'BN-' . str_pad($nextId, 6, '0', STR_PAD_LEFT);
+        $nextId = $lastPatient
+            ? $lastPatient->id + 1
+            : 1;
+
+        return 'BN-' . str_pad(
+            $nextId,
+            6,
+            '0',
+            STR_PAD_LEFT
+        );
     }
 }
