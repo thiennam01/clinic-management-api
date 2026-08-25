@@ -45,7 +45,9 @@ class SpecialtyController extends Controller
     // Show specialty details
     public function show(Specialty $specialty)
     {
-        $specialtyData = $this->specialtyService->getSpecialtyById($specialty);
+        $specialtyData = $this->specialtyService->getSpecialtyById(
+            $specialty->id
+        );
 
         return $this->successResponse(
             new SpecialtyResource($specialtyData),
@@ -54,9 +56,14 @@ class SpecialtyController extends Controller
     }
 
     // Update specialty information
-    public function update(UpdateSpecialtyRequest $request, Specialty $specialty)
-    {
-        $updatedSpecialty = $this->specialtyService->updateSpecialty($specialty, $request->validated());
+    public function update(
+        UpdateSpecialtyRequest $request,
+        Specialty $specialty
+    ) {
+        $updatedSpecialty = $this->specialtyService->updateSpecialty(
+            $specialty->id,
+            $request->validated()
+        );
 
         return $this->successResponse(
             new SpecialtyResource($updatedSpecialty),
@@ -67,11 +74,13 @@ class SpecialtyController extends Controller
     // Delete a specialty (Soft Delete)
     public function destroy(Specialty $specialty)
     {
-        $this->specialtyService->deleteSpecialty($specialty);
+        $this->specialtyService->deleteSpecialty(
+            $specialty->id
+        );
 
         return $this->successResponse(
             null,
             SpecialtyConstant::MSG_DELETE_SUCCESS
         );
-    }
+    }   
 }

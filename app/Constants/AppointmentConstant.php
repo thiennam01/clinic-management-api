@@ -21,4 +21,30 @@ class AppointmentConstant
     public const MSG_DATE_REQUIRED = 'Please select the appointment date and time.';
     public const MSG_DATE_INVALID = 'The appointment date format is invalid.';
     public const MSG_DATE_AFTER_OR_EQUAL = 'The appointment date must be today or a future date.';
+    public const MSG_UPDATE_SUCCESS = 'The appointment date update successfully!';
+    public const MSG_SCHEDULE_NOT_AVAILABLE = 'No available work schedule matches the selected doctor, date, and time.';
+
+    public const CODE_PREFIX = 'APT-';
+    public const PAGINATE_LIMIT = 10;
+
+    // Appointment Statuses
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_CONFIRMED = 'confirmed';
+    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_CANCELLED = 'cancelled';
+
+
+    public const MSG_DELETE_SUCCESS = 'Xóa lịch khám thành công.';
+    /**
+     * Lấy danh sách các trạng thái lịch hẹn
+     */
+    public static function getStatuses()
+    {
+        return [
+            self::STATUS_PENDING => 'Chờ xác nhận',
+            self::STATUS_CONFIRMED => 'Đã xác nhận',
+            self::STATUS_COMPLETED => 'Đã hoàn thành',
+            self::STATUS_CANCELLED => 'Đã hủy',
+        ];
+    }
 }

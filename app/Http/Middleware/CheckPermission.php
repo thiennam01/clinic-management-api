@@ -10,32 +10,41 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckPermission
 {
     /**
-     * Map controller method name to RESTful action verb.
+     * Map controller method name to permission action.
      */
     protected array $actionMap = [
-        'index'        => 'FINDALL',
-        'show'         => 'FINDONE',
-        'store'        => 'CREATE',
-        'update'       => 'UPDATE',
-        'destroy'      => 'DELETE',
-        'updateStatus' => 'UPDATESTATUS',
-        'adjustStock'  => 'ADJUSTSTOCK',
-        'addItem'      => 'ADDITEM',
-        'updateItem'   => 'UPDATEITEM',
-        'removeItem'   => 'REMOVEITEM',
-        'capture'      => 'CAPTURE',
+    'index'        => 'FINDALL',
+    'show'         => 'FINDONE',
+    'create'       => 'CREATE',
+    'store'        => 'CREATE',
+    'edit'         => 'UPDATE',
+    'update'       => 'UPDATE',
+    'destroy'      => 'DELETE',
+
+    'updateStatus' => 'UPDATESTATUS',
+    'adjustStock'  => 'ADJUSTSTOCK',
+    'addItem'      => 'ADDITEM',
+    'updateItem'   => 'UPDATEITEM',
+    'removeItem'   => 'REMOVEITEM',
+    'capture'      => 'CAPTURE',
     ];
 
-    public function handle(Request $request, Closure $next): Response
-    {
-        // Get current authenticated user
+    public function handle(
+        Request $request,
+        Closure $next
+    ): Response {
         $user = $request->user();
 
         if (!$user) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Unauthenticated.',
+                ], 401);
+            }
+
+            return redirect()->route('login');
         }
 
-        // Get Controller class and action method from the current Route
         $route = $request->route();
         $action = $route?->getAction();
 
@@ -43,31 +52,46 @@ class CheckPermission
             return $next($request);
         }
 
-        // Parse Controller@method string (e.g., "App\Http\Controllers\UserController@index")
-        [$controller, $method] = explode('@', $action['controller']);
+        [$controller, $method] = explode(
+            '@',
+            $action['controller']
+        );
 
-        // Map Controller to RESOURCE (e.g., UserController -> USERS)
         $controllerName = class_basename($controller);
-        $rawResource = str_replace('Controller', '', $controllerName);
-        $resource = strtoupper(Str::plural($rawResource)); // Convert to uppercase plural form
 
-        // Map method to ACTION
-        $permissionAction = $this->actionMap[$method] ?? strtoupper($method);
+        $rawResource = str_replace(
+            ['WebController', 'Controller'],
+            '',
+            $controllerName
+        );
 
-        // Combine into format: RESOURCE.ACTION (e.g., USERS.FINDALL)
-        $requiredPermission = "{$resource}.{$permissionAction}";
+        $resource = strtoupper(
+            Str::plural($rawResource)
+        );
 
-        // Check if the user's role possesses this permission in the database
+        $permissionAction =
+            $this->actionMap[$method]
+            ?? strtoupper($method);
+
+        $requiredPermission =
+            "{$resource}.{$permissionAction}";
+
         $hasPermission = $user->role?->permissions()
             ->where('name', $requiredPermission)
             ->exists();
 
-        // Deny access with 403 Forbidden if permission is missing
         if (!$hasPermission) {
-            return response()->json([
-                'message' => 'Forbidden: You do not have permission to access this resource.',
-                'required_permission' => $requiredPermission
-            ], 403);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' =>
+                        'Forbidden: You do not have permission to access this resource.',
+                    'required_permission' =>
+                        $requiredPermission,
+                ], 403);
+            }
+
+            abort(403);
         }
 
         return $next($request);

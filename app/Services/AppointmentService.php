@@ -58,11 +58,19 @@ class AppointmentService
 
         // 2. Define State Machine transition rules (Task T2.5)
         $allowedTransitions = [
-            'pending'   => ['scheduled', 'confirmed', 'cancelled'],
-            'scheduled' => ['confirmed', 'cancelled'],
-            'confirmed' => ['completed', 'cancelled'],
-            'completed' => [],
-            'cancelled' => [],
+        'pending' => [
+            'confirmed',
+            'cancelled',
+        ],
+
+        'confirmed' => [
+            'completed',
+            'cancelled',
+        ],
+
+        'completed' => [],
+
+        'cancelled' => [],
         ];
 
         // 3. Validate status transition validity

@@ -99,4 +99,15 @@ class UserService
 
         return $userInstance->delete();
     }
-}
+
+    public function getDoctorUsers()
+    {
+        return User::with('role')
+            ->whereHas('role', function ($query) {
+                $query->where('name', 'DOCTOR');
+            })
+            ->whereDoesntHave('doctor')
+            ->orderBy('name')
+            ->get();
+    }
+}   

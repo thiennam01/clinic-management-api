@@ -91,6 +91,13 @@ class PermissionSeeder extends Seeder
 
             // StatsController
             ['name' => 'STATS.SHOW',        'description' => 'Số liệu tổng quan hệ thống'],
+
+            // ScheduleController
+            ['name' => 'SCHEDULES.FINDALL', 'description' => 'List ca làm việc của bác sĩ'],
+            ['name' => 'SCHEDULES.CREATE',  'description' => 'Tạo ca làm việc cho bác sĩ'],
+            ['name' => 'SCHEDULES.FINDONE', 'description' => 'Chi tiết ca làm việc'],
+            ['name' => 'SCHEDULES.UPDATE',  'description' => 'Sửa ca làm việc của bác sĩ'],
+            ['name' => 'SCHEDULES.DELETE',  'description' => 'Xóa ca làm việc của bác sĩ'],
         ];
 
         foreach ($permissions as $perm) {

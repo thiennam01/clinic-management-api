@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Constants\DoctorConstant;
 use App\Models\Doctor;
 use App\Repositories\Contracts\DoctorRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -12,14 +13,21 @@ class DoctorService
         protected DoctorRepositoryInterface $doctorRepository
     ) {}
 
-    public function getAllDoctors(int $perPage = 10): LengthAwarePaginator
-    {
+    public function getAllDoctors(
+        int $perPage = 10
+    ): LengthAwarePaginator {
         return $this->doctorRepository->getAllPaginated($perPage);
     }
 
-    public function getDoctorById(int $id): ?Doctor
+    public function getDoctorById(int $id): Doctor
     {
-        return $this->doctorRepository->findById($id);
+        $doctor = $this->doctorRepository->findById($id);
+
+        if (!$doctor) {
+            abort(404, DoctorConstant::MSG_NOT_FOUND);
+        }
+
+        return $doctor;
     }
 
     public function createDoctor(array $data): Doctor
@@ -27,13 +35,22 @@ class DoctorService
         return $this->doctorRepository->create($data);
     }
 
-    public function updateDoctor(int $id, array $data): Doctor
-    {
-        return $this->doctorRepository->update($id, $data);
+    public function updateDoctor(
+        int $id,
+        array $data
+    ): Doctor {
+        $this->getDoctorById($id);
+
+        return $this->doctorRepository->update(
+            $id,
+            $data
+        );
     }
 
     public function deleteDoctor(int $id): bool
     {
+        $this->getDoctorById($id);
+
         return $this->doctorRepository->delete($id);
     }
 }

@@ -61,11 +61,15 @@ class ExaminationService
                 throw new Exception(ExaminationConstant::MSG_EXAMINATION_ALREADY_EXISTS, 422);
             }
 
-            // 4. Automatically derive doctor_id and patient_id from the appointment safely
+            // 4. Derive doctor and patient from the appointment
             $appointment->loadMissing('schedule');
-            
-            $doctorId = $appointment->schedule ? ($appointment->schedule->doctor_id ?? $appointment->schedule->user_id ?? null) : null;
+
+            $doctorId = $appointment->schedule?->doctor_id;
             $patientId = $appointment->patient_id;
+
+            if (!$doctorId) {
+                throw new Exception('Appointment does not have a valid doctor schedule.', 422);
+            }
 
             $examinationData = [
                 'appointment_id' => $appointment->id,
