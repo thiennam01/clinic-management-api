@@ -8,6 +8,16 @@ use App\Repositories\Contracts\ExaminationRepositoryInterface;
 class ExaminationRepository implements ExaminationRepositoryInterface
 {
     /**
+     * Get all examination records.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function all()
+    {
+        return Examination::all();
+    }
+
+    /**
      * Create a new examination record.
      *
      * @param array $data

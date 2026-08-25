@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ScheduleController;
 use App\Http\Controllers\Api\V1\AppointmentController;
 use App\Http\Controllers\Api\V1\ExaminationController;
 use App\Http\Controllers\Api\V1\MedicineController; 
+use App\Http\Controllers\Api\V1\PrescriptionController;
 use App\Http\Controllers\PatientController;
 use Illuminate\Support\Facades\Route;
 
@@ -46,4 +47,14 @@ Route::middleware(['auth:sanctum', 'permission'])->group(function () {
     Route::apiResource('medicines', MedicineController::class);
     // View prescribed orders containing a specific medicine
     Route::get('medicines/{id}/prescriptions', [MedicineController::class, 'prescribedHistory']);
+
+    // Prescription Management API (Task T3.4: Create prescription)
+    Route::get('/prescriptions', [PrescriptionController::class, 'index']); 
+    Route::get('/prescriptions/{prescription}', [PrescriptionController::class, 'show']); 
+    Route::post('/prescriptions', [PrescriptionController::class, 'store']);
+
+    // Prescription Items Management API (Task T3.5: Add / Update / Remove prescription items)
+    Route::post('/prescriptions/{prescription}/items', [PrescriptionController::class, 'addItem']);
+    Route::put('/prescription-items/{item}', [PrescriptionController::class, 'updateItem']);
+    Route::delete('/prescription-items/{item}', [PrescriptionController::class, 'removeItem']);
 });
