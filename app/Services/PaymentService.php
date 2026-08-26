@@ -37,10 +37,15 @@ class PaymentService
             ]);
         }
 
+        $paypalAmount = round(
+            $amount / config('paypal.exchange_rate'),
+            2
+        );
+
         $order = $this->payPalService->createOrder(
-            $amount,
-            url('/api/payments/paypal/success?invoice=' . $invoice->id),
-            url('/api/payments/paypal/cancel?invoice=' . $invoice->id)
+            $paypalAmount,
+            route('payments.web.success', ['invoice' => $invoice->id]),
+            route('payments.web.cancel', ['invoice' => $invoice->id])
         );
 
         $payment = Payment::create([

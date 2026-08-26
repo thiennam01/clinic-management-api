@@ -86,6 +86,7 @@ class PermissionSeeder extends Seeder
 
             // PaymentController
             ['name' => 'PAYMENTS.FINDALL',  'description' => 'List thanh toán theo hóa đơn'],
+            ['name' => 'PAYMENTS.FINDONE',  'description' => 'Chi tiết thanh toán theo hóa đơn'],
             ['name' => 'PAYMENTS.CREATE',   'description' => 'Tạo lệnh thanh toán PayPal/Visa'],
             ['name' => 'PAYMENTS.CAPTURE',  'description' => 'Capture / xác nhận thanh toán'],
 
@@ -141,7 +142,7 @@ class PermissionSeeder extends Seeder
                 'PATIENTS.FINDALL', 'PATIENTS.FINDONE',
                 'APPOINTMENTS.FINDALL', 'APPOINTMENTS.FINDONE',
                 'INVOICES.FINDALL', 'INVOICES.CREATE', 'INVOICES.FINDONE', 'INVOICES.UPDATE', 'INVOICES.UPDATESTATUS',
-                'PAYMENTS.FINDALL', 'PAYMENTS.CREATE', 'PAYMENTS.CAPTURE',
+                'PAYMENTS.FINDALL', 'PAYMENTS.FINDONE', 'PAYMENTS.CREATE', 'PAYMENTS.CAPTURE',
                 'STATS.SHOW',
             ],
         ];

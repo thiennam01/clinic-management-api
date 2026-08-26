@@ -272,4 +272,24 @@ When a client sends a request to the API, the processing flow traverses the laye
 
 ```
 
+## PayPal Sandbox - Visa Testing
+
+The application uses PayPal Sandbox for payment testing.
+
+### Create a PayPal App
+
+1. Open PayPal Developer Dashboard.
+2. Sign in with a PayPal Developer account.
+3. Go to **Apps & Credentials**.
+4. Select **Sandbox**.
+5. Create a new REST API app.
+6. Copy the Client ID and Secret.
+7. Add them to `.env`:
+
+```env
+PAYPAL_MODE=sandbox
+PAYPAL_CLIENT_ID=your-sandbox-client-id
+PAYPAL_CLIENT_SECRET=your-sandbox-client-secret
+PAYPAL_CURRENCY=USD
+
 

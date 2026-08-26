@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Examination extends Model
 {
@@ -69,4 +70,5 @@ class Examination extends Model
     {
         return $this->hasOne(Prescription::class);
     }
+public function invoice(): HasOne    {        return $this->hasOne(Invoice::class);    }
 }

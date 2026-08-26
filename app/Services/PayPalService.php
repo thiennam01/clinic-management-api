@@ -63,6 +63,11 @@ class PayPalService
             ]);
 
         if ($response->failed()) {
+            logger()->error('PayPal create order failed', [
+                'status' => $response->status(),
+                'body' => $response->json(),
+            ]);
+
             throw new RuntimeException(
                 PaymentConstant::PAYPAL_ORDER_CREATE_FAILED
             );
@@ -96,12 +101,19 @@ class PayPalService
         $response = Http::timeout(15)
             ->withToken($this->getAccessToken())
             ->acceptJson()
+            ->withBody('{}', 'application/json')
             ->post(
                 config('paypal.base_url') .
                 "/v2/checkout/orders/{$orderId}/capture"
             );
 
         if ($response->failed()) {
+            \Log::error('PayPal capture failed', [
+                'order_id' => $orderId,
+                'status' => $response->status(),
+                'body' => $response->json(),
+            ]);
+
             return [
                 'success' => false,
                 'capture_id' => null,
@@ -112,12 +124,6 @@ class PayPalService
             $response->json(),
             'purchase_units.0.payments.captures.0.id'
         );
-
-        if (!$captureId) {
-            throw new RuntimeException(
-                PaymentConstant::PAYPAL_CAPTURE_ID_NOT_RETURNED
-            );
-        }
 
         return [
             'success' => true,

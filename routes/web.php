@@ -14,6 +14,8 @@ use App\Http\Controllers\Web\ScheduleWebController;
 use App\Http\Controllers\Web\UserWebController;
 use App\Http\Controllers\Web\MedicineWebController;
 use App\Http\Controllers\Web\PrescriptionWebController;
+use App\Http\Controllers\Web\InvoiceWebController;
+use App\Http\Controllers\Web\PaymentWebController;
 
 
 /*
@@ -277,4 +279,50 @@ Route::middleware(['auth', 'permission'])->group(function () {
         'removeItem',
     ])->name('prescriptions.web.items.destroy');
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Invoices & Payments
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post('/examinations/{examination}/invoice', [
+        InvoiceWebController::class,
+        'store',
+    ])->name('invoices.web.store');
+
+    Route::get('/invoices', [
+        \App\Http\Controllers\Web\InvoiceWebController::class,
+        'index',
+    ])->name('invoices.web.index');
+
+    Route::get('/invoices/create', [
+        \App\Http\Controllers\Web\InvoiceWebController::class,
+        'create',
+    ])->name('invoices.web.create');
+
+    Route::get('/invoices/{invoice}', [
+        InvoiceWebController::class,
+        'show',
+    ])->name('invoices.web.show');
+
+    Route::get('/invoices/{invoice}/payment', [
+        PaymentWebController::class,
+        'show',
+    ])->name('payments.web.show');
+
+    Route::post('/invoices/{invoice}/payment', [
+        PaymentWebController::class,
+        'store',
+    ])->name('payments.web.store');
+
+    Route::get('/invoices/{invoice}/payment/success', [
+        PaymentWebController::class,
+        'success',
+    ])->name('payments.web.success');
+
+    Route::get('/invoices/{invoice}/payment/cancel', [
+        PaymentWebController::class,
+        'cancel',
+    ])->name('payments.web.cancel');
 });

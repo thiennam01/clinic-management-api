@@ -27,6 +27,8 @@ class CheckPermission
     'updateItem'   => 'UPDATEITEM',
     'removeItem'   => 'REMOVEITEM',
     'capture'      => 'CAPTURE',
+    'success' => 'CAPTURE',
+    'cancel' => 'CREATE',
     ];
 
     public function handle(
