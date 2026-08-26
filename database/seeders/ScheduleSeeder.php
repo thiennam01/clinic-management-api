@@ -10,26 +10,19 @@ class ScheduleSeeder extends Seeder
 {
     public function run(): void
     {
-        $doctors = Doctor::orderBy("id")->get();
+        $doctors = Doctor::query()
+            ->where('is_active', true)
+            ->orderBy('id')
+            ->get();
 
-        if ($doctors->isEmpty()) {
-            return;
-        }
+        foreach ($doctors as $doctor) {
+            $this->createSchedule($doctor->id, today()->toDateString(), '08:00:00', '10:00:00');
+            $this->createSchedule($doctor->id, today()->toDateString(), '10:00:00', '12:00:00');
 
-        foreach ($doctors as $index => $doctor) {
-            $this->createSchedule(
-                $doctor->id,
-                "2026-08-31",
-                $index % 2 === 0 ? "08:00:00" : "13:30:00",
-                $index % 2 === 0 ? "12:00:00" : "17:30:00"
-            );
+            $tomorrow = today()->copy()->addDay()->toDateString();
 
-            $this->createSchedule(
-                $doctor->id,
-                "2026-09-01",
-                $index % 2 === 0 ? "13:30:00" : "08:00:00",
-                $index % 2 === 0 ? "17:30:00" : "12:00:00"
-            );
+            $this->createSchedule($doctor->id, $tomorrow, '08:00:00', '10:00:00');
+            $this->createSchedule($doctor->id, $tomorrow, '14:00:00', '16:00:00');
         }
     }
 
@@ -39,17 +32,16 @@ class ScheduleSeeder extends Seeder
         string $startTime,
         string $endTime
     ): void {
-        Schedule::firstOrCreate(
+        Schedule::updateOrCreate(
             [
-                "doctor_id" => $doctorId,
-                "date" => $date,
-                "start_time" => $startTime,
-                "end_time" => $endTime,
+                'doctor_id' => $doctorId,
+                'date' => $date,
+                'start_time' => $startTime,
+                'end_time' => $endTime,
             ],
             [
-                "max_patients" => 10,
-                "current_patients" => 0,
-                "is_active" => true,
+                'max_patients' => 10,
+                'is_active' => true,
             ]
         );
     }

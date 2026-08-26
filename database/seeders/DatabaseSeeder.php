@@ -38,6 +38,9 @@ class DatabaseSeeder extends Seeder
             DoctorSeeder::class,
             PatientSeeder::class,
             ScheduleSeeder::class,
+            MedicineSeeder::class,
+            AppointmentSeeder::class,
+            ExaminationSeeder::class,
             InvoiceSeeder::class,
             PaymentSeeder::class,
         ]);
