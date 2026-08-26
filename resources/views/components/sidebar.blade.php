@@ -273,30 +273,22 @@
 
         </a>
 
-
-        {{-- Payments --}}
+        {{-- Invoices --}}
         <a
-            href="{{ url('/payments') }}"
-            class="mb-1 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+            href="{{ route('invoices.web.index') }}"
+            class="{{ request()->routeIs('invoices.web.*') ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50' }} flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition"
         >
-
-            <svg
-                class="h-5 w-5 text-slate-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-            >
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                     stroke-linecap="round"
+                    stroke-linejoin="round"
                     stroke-width="1.8"
-                    d="M3 7h18M5 5h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2zm3 9h4"
+                    d="M9 14h6m-6-4h6m2 10H7a2 2 0 01-2-2V6a2 2 0 012-2h6l4 4v10a2 2 0 01-2 2z"
                 />
             </svg>
 
-            Thanh toán
-
+            <span>Hóa đơn</span>
         </a>
-
 
         {{-- Admin --}}
         @if (auth()->user()?->role?->name === 'ADMIN')

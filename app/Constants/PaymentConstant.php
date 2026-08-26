@@ -7,6 +7,10 @@ class PaymentConstant
     public const CREATED_SUCCESSFULLY = 'Payment order created successfully.';
     public const CAPTURED_SUCCESSFULLY = 'Payment captured successfully.';
 
+    public const PAYMENT_SUCCESS = 'Thanh toán thành công.';
+    public const PAYMENT_FAILED = 'Thanh toán thất bại.';
+    public const PAYMENT_CANCELLED = 'Đã hủy thanh toán.';
+
     public const AMOUNT_EXCEEDS_REMAINING = 'Payment amount cannot exceed the remaining invoice amount.';
     public const INVOICE_ALREADY_PAID = 'This invoice has already been fully paid.';
     public const PAYMENT_NOT_PENDING = 'Payment is not pending.';
