@@ -13,6 +13,7 @@ use App\Http\Controllers\PatientController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\InvoiceController;
 use App\Http\Controllers\Api\V1\PaymentController;
+use App\Http\Controllers\Api\V1\StatsController;
 
 // Public authentication route
 Route::post('login', [AuthController::class, 'login']);
@@ -66,5 +67,6 @@ Route::middleware(['auth:sanctum', 'permission'])->group(function () {
 
     Route::post('/invoices/{invoice}/payments',[PaymentController::class, 'store']);
     Route::post('/payments/{payment}/capture', [PaymentController::class, 'capture']);
+    Route::get('/stats', [StatsController::class, 'show']);
 });
 

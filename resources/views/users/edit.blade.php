@@ -126,17 +126,34 @@
                     </select>
                 </div>
 
-                <div class="flex items-center gap-3 pt-7">
-                    <input
-                        type="checkbox"
-                        name="is_active"
-                        value="1"
-                        @checked(old('is_active', $user->is_active ?? true))
-                        class="h-4 w-4 rounded border-slate-300"
-                    >
+                <div class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                    <div>
+                        <label for="is_active" class="text-sm font-semibold text-slate-700">
+                            Trạng thái tài khoản
+                        </label>
 
-                    <label class="text-sm font-medium text-slate-700">
-                        Tài khoản đang hoạt động
+                        <p class="mt-1 text-xs text-slate-500">
+                            Cho phép người dùng đăng nhập và sử dụng hệ thống.
+                        </p>
+                    </div>
+
+                    <label class="relative inline-flex cursor-pointer items-center">
+                        <input
+                            type="hidden"
+                            name="is_active"
+                            value="0"
+                        >
+
+                        <input
+                            id="is_active"
+                            type="checkbox"
+                            name="is_active"
+                            value="1"
+                            @checked(old('is_active', $user->is_active ?? true))
+                            class="peer sr-only"
+                        >
+
+                        <div class="h-6 w-11 rounded-full bg-slate-300 transition peer-checked:bg-blue-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 after:absolute after:left-[3px] after:top-[3px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-5"></div>
                     </label>
                 </div>
 

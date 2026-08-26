@@ -17,7 +17,11 @@ class AuthService
         $user = User::with('role')->where('email', $credentials['email'])->first();
 
         // Check if user exists and password is correct
-        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+        if (
+            !$user ||
+            !$user->is_active ||
+            !Hash::check($credentials['password'], $user->password)
+        ) {
             throw ValidationException::withMessages([
                 'email' => [AuthConstant::MSG_INVALID_CREDENTIALS],
             ]);
