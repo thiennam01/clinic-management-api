@@ -36,16 +36,7 @@
         </a>
 
     </div>
-        <div>
-            <h1 class="text-2xl font-bold text-slate-900">
-                Hóa đơn
-            </h1>
-
-            <p class="mt-1 text-sm text-slate-500">
-                Quản lý và theo dõi các hóa đơn của bệnh nhân.
-            </p>
-        </div>
-    </div>
+        
 
     {{-- Filters --}}
     <form

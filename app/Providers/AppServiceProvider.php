@@ -13,6 +13,15 @@ use App\Repositories\Eloquent\ExaminationRepository;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\Contracts\MedicineRepositoryInterface;
 use App\Repositories\Eloquent\MedicineRepository;
+use App\Models\Appointment;
+use App\Models\Examination;
+use App\Models\Invoice;
+use App\Models\Medicine;
+use App\Models\Payment;
+use App\Models\Prescription;
+use App\Models\PrescriptionItem;
+use App\Models\User;
+use App\Observers\ActivityLogObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -49,6 +58,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        User::observe(ActivityLogObserver::class);
+        Appointment::observe(ActivityLogObserver::class);
+        Examination::observe(ActivityLogObserver::class);
+        Prescription::observe(ActivityLogObserver::class);
+        PrescriptionItem::observe(ActivityLogObserver::class);
+        Medicine::observe(ActivityLogObserver::class);
+        Invoice::observe(ActivityLogObserver::class);
+        Payment::observe(ActivityLogObserver::class);
     }
 }
