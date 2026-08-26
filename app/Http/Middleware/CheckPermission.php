@@ -71,9 +71,11 @@ class CheckPermission
             Str::plural($rawResource)
         );
 
-        $permissionAction =
-            $this->actionMap[$method]
-            ?? strtoupper($method);
+        $permissionAction = $this->actionMap[$method] ?? strtoupper($method);
+
+        if ($controllerName === 'StatsController' && $method === 'show') {
+            $permissionAction = 'SHOW';
+        }   
 
         $requiredPermission =
             "{$resource}.{$permissionAction}";
@@ -81,6 +83,20 @@ class CheckPermission
         $hasPermission = $user->role?->permissions()
             ->where('name', $requiredPermission)
             ->exists();
+
+        $specialPermissionMap = [
+            'StatsController@show' => 'STATS.SHOW',
+        ];
+
+        $permissionKey = "{$controllerName}@{$method}";
+
+        if (isset($specialPermissionMap[$permissionKey])) {
+            $requiredPermission = $specialPermissionMap[$permissionKey];
+        } else {
+            $permissionAction = $this->actionMap[$method] ?? strtoupper($method);
+
+            $requiredPermission = "{$resource}.{$permissionAction}";
+        }
 
         if (!$hasPermission) {
 

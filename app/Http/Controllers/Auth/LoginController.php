@@ -26,6 +26,16 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
+        $user = \App\Models\User::where('email', $credentials['email'])->first();
+
+        if ($user && !$user->is_active) {
+            return back()
+                ->withInput($request->only('email'))
+                ->withErrors([
+                    'email' => 'Tài khoản của bạn đã bị vô hiệu hóa.',
+                ]);
+        }
+
         if (!Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()
                 ->withInput($request->only('email'))
