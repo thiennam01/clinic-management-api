@@ -16,6 +16,7 @@ use App\Http\Controllers\Web\MedicineWebController;
 use App\Http\Controllers\Web\PrescriptionWebController;
 use App\Http\Controllers\Web\InvoiceWebController;
 use App\Http\Controllers\Web\PaymentWebController;
+use App\Http\Controllers\Web\NotificationController;
 
 
 /*
@@ -48,6 +49,18 @@ Route::post('/logout', [LoginController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
+
+Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [
+        NotificationController::class,
+        'index',
+    ])->name('notifications.index');
+
+    Route::post('/notifications/read-all', [
+        NotificationController::class,
+        'readAll',
+    ])->name('notifications.read-all');
+});
 
 /*
 |--------------------------------------------------------------------------
